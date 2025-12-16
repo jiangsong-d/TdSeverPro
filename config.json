@@ -1,0 +1,16 @@
+{
+  "server": {
+    "port": ":8080",
+    "max_players": 1000,
+    "room_capacity": 4,
+    "heartbeat_interval": 30,
+    "session_timeout": 120,
+    "tick_rate": 20
+  },
+  "game": {
+    "initial_gold": 100,
+    "initial_life": 20,
+    "wave_interval": 5.0,
+    "enemy_spawn_interval": 1.0
+  }
+}
