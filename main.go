@@ -12,6 +12,7 @@ import (
 	"towerdefense/gameserver"
 	"towerdefense/logic"
 	"towerdefense/network"
+	"towerdefense/storage"
 	"towerdefense/utils"
 )
 
@@ -27,7 +28,22 @@ func main() {
 	
 	// 初始化日志
 	utils.InitLogger()
+	加载配置
+	config.LoadConfig()
 	
+	// 初始化存储层
+	err := storage.InitStorage(
+		storage.StorageType(config.Storage.Type),
+		config.Storage.Settings,
+	)
+	if err != nil {
+		log.Fatal("存储层初始化失败: ", err)
+	}
+	defer storage.CloseStorage()
+	
+	utils.Info("存储层初始化成功，类型: %s", config.Storage.Type)
+	
+	// 
 	// 根据类型启动不同服务器
 	if *serverType == "account" {
 		startAccountServer()

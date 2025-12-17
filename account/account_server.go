@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"sync"
 	"time"
+	"towerdefense/repository"
 	"towerdefense/utils"
 	
 	"github.com/google/uuid"
@@ -15,10 +16,11 @@ import (
 
 // AccountServer 账号服务器
 type AccountServer struct {
-	accounts    map[string]*Account  // username -> account
-	tokens      map[string]*Session  // token -> session
-	gameServers []*GameServerInfo    // 区服列表
-	mu          sync.RWMutex
+	accounts       map[string]*Account  // username -> account (内存缓存)
+	tokens         map[string]*Session  // token -> session
+	gameServers    []*GameServerInfo    // 区服列表
+	accountRepo    *repository.AccountRepository  // 账号仓储
+	mu             sync.RWMutex
 }
 
 // Account 账号信息
@@ -61,11 +63,20 @@ func GetAccountServer() *AccountServer {
 		accountServer = &AccountServer{
 			accounts:    make(map[string]*Account),
 			tokens:      make(map[string]*Session),
-			gameServers: make([]*GameServerInfo, 0),
+			accountRepo: repository.NewAccountRepository(),
 		}
 		accountServer.InitGameServers()
+		accountServer.LoadAccountsFromStorage()
 		utils.Info("账号服务器初始化完成")
 	})
+	return accountServer
+}
+
+// LoadAccountsFromStorage 从存储加载账号数据到内存缓存
+func (as *AccountServer) LoadAccountsFromStorage() {
+	// 启动时加载所有账号到内存（可选优化）
+	// 对于大量账号，可以按需加载
+	utils.Info("账号数据已就绪，使用持久化存储")
 	return accountServer
 }
 
@@ -113,8 +124,9 @@ func (as *AccountServer) RegisterAccount(username, password string) (*Account, e
 	as.mu.Lock()
 	defer as.mu.Unlock()
 	
-	// 检查用户名是否存在
-	if _, exists := as.accounts[username]; exists {
+	// 检查用户名是否存在（从存储检查）
+	exists, err := as.accountRepo.Exists(username)
+	if err == nil && exists {
 		return nil, fmt.Errorf("用户名已存在")
 	}
 	
@@ -128,30 +140,92 @@ func (as *AccountServer) RegisterAccount(username, password string) (*Account, e
 		LastLoginTime: time.Now(),
 	}
 	
-	as.accounts[username] = account
-	utils.Info("账号注册成功: %s", username)
+	// 保存到存储
+	accountData := &repository.AccountData{
+		Username:      account.Username,
+		Password:      account.Password,
+		PlayerID:      account.PlayerID,
+		PlayerName:    account.PlayerName,
+		Email:         "",
+		CreateTime:    account.CreateTime,
+		LastLoginTime: account.LastLoginTime,
+		LoginCount:    0,
+	var account *Account
 	
-	return account, nil
-}
-
-// Login 登录
-func (as *AccountServer) Login(username, password string) (*Session, error) {
-	as.mu.Lock()
-	defer as.mu.Unlock()
-	
-	// 检查账号是否存在
+	// 先从内存缓存查找
 	account, exists := as.accounts[username]
 	if !exists {
-		// 自动注册（开发环境）
-		account = &Account{
-			Username:      username,
-			Password:      hashPassword(password),
-			PlayerID:      uuid.New().String(),
-			PlayerName:    username,
-			CreateTime:    time.Now(),
-			LastLoginTime: time.Now(),
+		// 从存储加载
+		accountData, err := as.accountRepo.GetByUsername(username)
+		if err != nil {
+			// 账号不存在，自动注册（开发环境）
+			account = &Account{
+				Username:      username,
+				Password:      hashPassword(password),
+				PlayerID:      uuid.New().String(),
+				PlayerName:    username,
+				CreateTime:    time.Now(),
+				LastLoginTime: time.Now(),
+			}
+			
+			// 保存到存储
+			accountData := &repository.AccountData{
+				Username:      account.Username,
+				Password:      account.Password,
+				PlayerID:      account.PlayerID,
+				PlayerName:    account.PlayerName,
+				Email:         "",
+				CreateTime:    account.CreateTime,
+				LastLoginTime: account.LastLoginTime,
+				LoginCount:    1,
+				Status:        "active",
+			}
+			
+			if err := as.accountRepo.Save(accountData); err != nil {
+				utils.Error("保存账号失败: %v", err)
+				return nil, fmt.Errorf("登录失败: %v", err)
+			}
+			
+			as.accounts[username] = account
+			utils.Info("自动注册新账号: %s", username)
+		} else {
+			// 从存储数据转换
+			account = &Account{
+				Username:      accountData.Username,
+				Password:      accountData.Password,
+				PlayerID:      accountData.PlayerID,
+				PlayerName:    accountData.PlayerName,
+				CreateTime:    accountData.CreateTime,
+				LastLoginTime: accountData.LastLoginTime,
+			}
+			as.accounts[username] = account
 		}
-		as.accounts[username] = account
+	}
+	
+	// 验证密码
+	if account.Password != hashPassword(password) {
+		return nil, fmt.Errorf("密码错误")
+	}
+	
+	// 更新登录时间
+	account.LastLoginTime = time.Now()
+	
+	// 更新存储
+	if err := as.accountRepo.UpdateLastLogin(username); err != nil {
+		utils.Warn("更新登录时间失败: %v", err)
+	}
+	
+	// 生成token
+	token := uuid.New().String()
+	session := &Session{
+		Token:      token,
+		PlayerID:   account.PlayerID,
+		Username:   account.Username,
+		ExpireTime: time.Now().Add(24 * time.Hour), // 24小时有效
+	}
+	
+	as.tokens[token] = session
+	utils.Info("玩家登录成功: %s, PlayerID: %s, Token: %s", username, account.PlayerID
 		utils.Info("自动注册新账号: %s", username)
 	} else {
 		// 验证密码

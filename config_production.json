@@ -1,10 +1,10 @@
 {
   "server": {
     "port": ":8080",
-    "max_players": 1000,
+    "max_players": 10000,
     "room_capacity": 4,
     "heartbeat_interval": 30,
-    "session_timeout": 120,
+    "session_timeout": 300,
     "tick_rate": 20
   },
   "game": {
@@ -14,9 +14,13 @@
     "enemy_spawn_interval": 1.0
   },
   "storage": {
-    "type": "txt",
+    "type": "mysql",
     "settings": {
-      "data_dir": "./data"
+      "host": "localhost",
+      "port": 3306,
+      "username": "root",
+      "password": "your_password",
+      "database": "towerdefense"
     }
   }
 }

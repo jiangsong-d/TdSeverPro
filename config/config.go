@@ -24,9 +24,16 @@ type GameConfig struct {
 	EnemySpawnInterval float64 `json:"enemy_spawn_interval"` // 敌人生成间隔（秒）
 }
 
+// StorageConfig 存储配置
+type StorageConfig struct {
+	Type     string                 `json:"type"`      // txt, mysql, redis
+	Settings map[string]interface{} `json:"settings"`
+}
+
 var (
-	Server ServerConfig
-	Game   GameConfig
+	Server  ServerConfig
+	Game    GameConfig
+	Storage StorageConfig
 )
 
 // LoadConfig 加载配置
@@ -46,6 +53,14 @@ func LoadConfig() {
 		InitialLife:        20,
 		WaveInterval:       5.0,
 		EnemySpawnInterval: 1.0,
+	}
+	
+	// 默认使用TXT存储
+	Storage = StorageConfig{
+		Type: "txt",
+		Settings: map[string]interface{}{
+			"data_dir": "./data",
+		},
 	}
 	
 	// 尝试从文件加载
