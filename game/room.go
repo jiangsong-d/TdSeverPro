@@ -2,7 +2,6 @@ package game
 
 import (
 	"sync"
-	"towerdefense/network"
 	"towerdefense/utils"
 	
 	"github.com/google/uuid"
@@ -159,11 +158,15 @@ func (r *Room) FinishGame() {
 
 // BroadcastRoomInfo 广播房间信息
 func (r *Room) BroadcastRoomInfo() {
+	if globalBroadcaster == nil {
+		return
+	}
+	
 	players := r.GetPlayers()
-	playerInfos := make([]network.PlayerInfo, len(players))
+	playerInfos := make([]PlayerInfo, len(players))
 	
 	for i, p := range players {
-		playerInfos[i] = network.PlayerInfo{
+		playerInfos[i] = PlayerInfo{
 			PlayerID:   p.ID,
 			PlayerName: p.Name,
 			IsReady:    p.IsPlayerReady(),
@@ -171,7 +174,7 @@ func (r *Room) BroadcastRoomInfo() {
 		}
 	}
 	
-	broadcast := network.RoomInfoBroadcast{
+	broadcast := RoomInfoBroadcast{
 		RoomID:  r.ID,
 		Players: playerInfos,
 		Status:  string(r.Status),
@@ -179,18 +182,18 @@ func (r *Room) BroadcastRoomInfo() {
 	
 	// 发送给房间内所有玩家
 	for _, p := range players {
-		if session := network.GetSessionManager().GetSessionByPlayerID(p.ID); session != nil {
-			session.SendMessage(network.MsgTypeRoomInfo, broadcast)
-		}
+		globalBroadcaster.BroadcastToPlayer(p.ID, MsgTypeRoomInfo, broadcast)
 	}
 }
 
 // BroadcastToRoom 向房间广播消息
-func (r *Room) BroadcastToRoom(msgType network.MessageType, data interface{}) {
+func (r *Room) BroadcastToRoom(msgType int, data interface{}) {
+	if globalBroadcaster == nil {
+		return
+	}
+	
 	players := r.GetPlayers()
 	for _, p := range players {
-		if session := network.GetSessionManager().GetSessionByPlayerID(p.ID); session != nil {
-			session.SendMessage(msgType, data)
-		}
+		globalBroadcaster.BroadcastToPlayer(p.ID, msgType, data)
 	}
 }

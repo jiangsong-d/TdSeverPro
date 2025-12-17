@@ -1,8 +1,10 @@
 module towerdefense
 
-go 1.21
+go 1.23
 
 require (
-	github.com/gorilla/websocket v1.5.1
-	github.com/google/uuid v1.5.0
+	github.com/google/uuid v1.6.0
+	github.com/gorilla/websocket v1.5.3
 )
+
+require google.golang.org/protobuf v1.36.11 // indirect

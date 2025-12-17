@@ -1,0 +1,75 @@
+[INFO] 2025/12/16 23:56:33 main.go:43: === 账号服务器启动 ===
+[INFO] 2025/12/16 23:56:33 account_server.go:67: 账号服务器初始化完成
+[INFO] 2025/12/16 23:56:33 main.go:73: 账号服务器监听地址: :8080
+[INFO] 2025/12/16 23:56:33 main.go:74: API接口:
+[INFO] 2025/12/16 23:56:33 main.go:75:   - POST /api/register  注册
+[INFO] 2025/12/16 23:56:33 main.go:76:   - POST /api/login     登录
+[INFO] 2025/12/16 23:56:33 main.go:77:   - GET  /api/servers   获取区服列表
+[INFO] 2025/12/16 23:56:33 main.go:87: === 游戏服务器启动 ===
+[INFO] 2025/12/16 23:56:33 main.go:87: === 游戏服务器启动 ===
+[INFO] 2025/12/16 23:56:33 config.go:55: 配置文件加载成功
+[INFO] 2025/12/16 23:56:33 config.go:55: 配置文件加载成功
+[INFO] 2025/12/16 23:56:33 game_server.go:31: 游戏服务器初始化: ID=1, Name=一区-烈焰, Port=:8081
+[INFO] 2025/12/16 23:56:33 game_server.go:31: 游戏服务器初始化: ID=2, Name=二区-寒冰, Port=:8082
+[INFO] 2025/12/16 23:56:33 room_manager.go:24: 房间管理器初始化完成
+[INFO] 2025/12/16 23:56:33 room_manager.go:24: 房间管理器初始化完成
+[INFO] 2025/12/16 23:56:33 battle_manager.go:24: 战斗管理器初始化完成
+[INFO] 2025/12/16 23:56:33 battle_manager.go:24: 战斗管理器初始化完成
+[INFO] 2025/12/16 23:56:33 main.go:132: 游戏服务器 [二区-寒冰] 启动
+[INFO] 2025/12/16 23:56:33 main.go:132: 游戏服务器 [一区-烈焰] 启动
+[INFO] 2025/12/16 23:56:33 main.go:133: 服务器ID: 2
+[INFO] 2025/12/16 23:56:33 main.go:133: 服务器ID: 1
+[INFO] 2025/12/16 23:56:33 main.go:134: 监听地址: :8082
+[INFO] 2025/12/16 23:56:33 main.go:134: 监听地址: :8081
+[INFO] 2025/12/16 23:56:33 main.go:135: WebSocket: ws://localhost:8082/ws
+[INFO] 2025/12/16 23:56:33 main.go:135: WebSocket: ws://localhost:8081/ws
+[INFO] 2025/12/16 23:56:34 main.go:87: === 游戏服务器启动 ===
+[INFO] 2025/12/16 23:56:34 config.go:55: 配置文件加载成功
+[INFO] 2025/12/16 23:56:34 game_server.go:31: 游戏服务器初始化: ID=3, Name=三区-雷霆, Port=:8083
+[INFO] 2025/12/16 23:56:34 room_manager.go:24: 房间管理器初始化完成
+[INFO] 2025/12/16 23:56:34 battle_manager.go:24: 战斗管理器初始化完成
+[INFO] 2025/12/16 23:56:34 main.go:132: 游戏服务器 [三区-雷霆] 启动
+[INFO] 2025/12/16 23:56:34 main.go:133: 服务器ID: 3
+[INFO] 2025/12/16 23:56:34 main.go:134: 监听地址: :8083
+[INFO] 2025/12/16 23:56:34 main.go:135: WebSocket: ws://localhost:8083/ws
+[INFO] 2025/12/17 23:37:03 main.go:43: === 账号服务器启动 ===
+[INFO] 2025/12/17 23:37:03 account_server.go:67: 账号服务器初始化完成
+[INFO] 2025/12/17 23:37:03 main.go:73: 账号服务器监听地址: :8080
+[INFO] 2025/12/17 23:37:03 main.go:74: API接口:
+[INFO] 2025/12/17 23:37:03 main.go:75:   - POST /api/register  注册
+[INFO] 2025/12/17 23:37:03 main.go:76:   - POST /api/login     登录
+[INFO] 2025/12/17 23:37:03 main.go:77:   - GET  /api/servers   获取区服列表
+[INFO] 2025/12/17 23:37:04 main.go:87: === 游戏服务器启动 ===
+[INFO] 2025/12/17 23:37:04 main.go:87: === 游戏服务器启动 ===
+[INFO] 2025/12/17 23:37:04 main.go:87: === 游戏服务器启动 ===
+[INFO] 2025/12/17 23:37:04 config.go:55: 配置文件加载成功
+[INFO] 2025/12/17 23:37:04 config.go:55: 配置文件加载成功
+[INFO] 2025/12/17 23:37:04 config.go:55: 配置文件加载成功
+[INFO] 2025/12/17 23:37:04 game_server.go:31: 游戏服务器初始化: ID=2, Name=二区-寒冰, Port=:8082
+[INFO] 2025/12/17 23:37:04 game_server.go:31: 游戏服务器初始化: ID=3, Name=三区-雷霆, Port=:8083
+[INFO] 2025/12/17 23:37:04 game_server.go:31: 游戏服务器初始化: ID=1, Name=一区-烈焰, Port=:8081
+[INFO] 2025/12/17 23:37:04 room_manager.go:24: 房间管理器初始化完成
+[INFO] 2025/12/17 23:37:04 room_manager.go:24: 房间管理器初始化完成
+[INFO] 2025/12/17 23:37:04 room_manager.go:24: 房间管理器初始化完成
+[INFO] 2025/12/17 23:37:04 battle_manager.go:24: 战斗管理器初始化完成
+[INFO] 2025/12/17 23:37:04 battle_manager.go:24: 战斗管理器初始化完成
+[INFO] 2025/12/17 23:37:04 battle_manager.go:24: 战斗管理器初始化完成
+[INFO] 2025/12/17 23:37:04 main.go:132: 游戏服务器 [三区-雷霆] 启动
+[INFO] 2025/12/17 23:37:04 main.go:132: 游戏服务器 [一区-烈焰] 启动
+[INFO] 2025/12/17 23:37:04 main.go:132: 游戏服务器 [二区-寒冰] 启动
+[INFO] 2025/12/17 23:37:04 main.go:133: 服务器ID: 3
+[INFO] 2025/12/17 23:37:04 main.go:133: 服务器ID: 1
+[INFO] 2025/12/17 23:37:04 main.go:134: 监听地址: :8083
+[INFO] 2025/12/17 23:37:04 main.go:134: 监听地址: :8081
+[INFO] 2025/12/17 23:37:04 main.go:133: 服务器ID: 2
+[INFO] 2025/12/17 23:37:04 main.go:135: WebSocket: ws://localhost:8083/ws
+[INFO] 2025/12/17 23:37:04 main.go:135: WebSocket: ws://localhost:8081/ws
+[INFO] 2025/12/17 23:37:04 main.go:134: 监听地址: :8082
+[INFO] 2025/12/17 23:37:04 main.go:135: WebSocket: ws://localhost:8082/ws
+[INFO] 2025/12/17 23:46:41 main.go:43: === 账号服务器启动 ===
+[INFO] 2025/12/17 23:46:41 account_server.go:67: 账号服务器初始化完成
+[INFO] 2025/12/17 23:46:41 main.go:73: 账号服务器监听地址: :8080
+[INFO] 2025/12/17 23:46:41 main.go:74: API接口:
+[INFO] 2025/12/17 23:46:41 main.go:75:   - POST /api/register  注册
+[INFO] 2025/12/17 23:46:41 main.go:76:   - POST /api/login     登录
+[INFO] 2025/12/17 23:46:41 main.go:77:   - GET  /api/servers   获取区服列表

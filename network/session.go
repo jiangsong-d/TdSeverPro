@@ -1,13 +1,14 @@
 package network
 
 import (
-	"encoding/json"
 	"sync"
 	"time"
+	pb "towerdefense/proto"
 	"towerdefense/utils"
 	
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"google.golang.org/protobuf/proto"
 )
 
 // Session 会话
@@ -157,8 +158,8 @@ func (s *Session) ReadPump() {
 		// 更新心跳时间
 		s.LastHeartbeat = time.Now()
 		
-		// 处理消息
-		s.HandleMessage(message)
+		// 处理 protobuf 消息
+		s.HandleProtobufMessage(message)
 	}
 }
 
@@ -179,7 +180,7 @@ func (s *Session) WritePump() {
 				return
 			}
 			
-			if err := s.Conn.WriteMessage(websocket.TextMessage, message); err != nil {
+			if err := s.Conn.WriteMessage(websocket.BinaryMessage, message); err != nil {
 				return
 			}
 			
@@ -189,27 +190,6 @@ func (s *Session) WritePump() {
 				return
 			}
 		}
-	}
-}
-
-// SendMessage 发送消息
-func (s *Session) SendMessage(msgType MessageType, data interface{}) error {
-	msg, err := NewMessage(msgType, data)
-	if err != nil {
-		return err
-	}
-	
-	msgBytes, err := json.Marshal(msg)
-	if err != nil {
-		return err
-	}
-	
-	select {
-	case s.Send <- msgBytes:
-		return nil
-	default:
-		utils.Warn("发送缓冲区已满: %s", s.ID)
-		return nil
 	}
 }
 
@@ -237,4 +217,17 @@ func (s *Session) GetPlayerInfo() (string, string) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.PlayerID, s.PlayerName
+}
+
+// HandleProtobufMessage 处理 protobuf 消息
+func (s *Session) HandleProtobufMessage(data []byte) {
+	// 解析 NetworkPacket
+	packet := &pb.NetworkPacket{}
+	if err := proto.Unmarshal(data, packet); err != nil {
+		utils.Error("解析 NetworkPacket 失败: %v", err)
+		return
+	}
+	
+	// 委托给 proto_handler 处理
+	s.HandleProtoMessage(packet)
 }

@@ -105,6 +105,9 @@ func startGameServer() {
 	// 初始化游戏服务器
 	gameserver.InitGameServer(*serverID, *serverName, *addr, config.Server.MaxPlayers)
 	
+	// 初始化广播器（必须在管理器之前初始化）
+	network.InitGameBroadcaster()
+	
 	// 初始化管理器
 	logic.InitRoomManager()
 	logic.InitBattleManager()

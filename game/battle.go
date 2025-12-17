@@ -3,7 +3,6 @@ package game
 import (
 	"sync"
 	"time"
-	"towerdefense/network"
 	"towerdefense/utils"
 	
 	"github.com/google/uuid"
@@ -343,15 +342,19 @@ func (b *Battle) SyncState() {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
 	
+	if globalBroadcaster == nil {
+		return
+	}
+	
 	// 收集敌人状态
-	enemies := make([]network.EnemyState, 0, len(b.Enemies))
+	enemies := make([]EnemyState, 0, len(b.Enemies))
 	for _, e := range b.Enemies {
 		if !e.IsEnemyAlive() {
 			continue
 		}
 		hp, maxHP := e.GetHP()
 		pos := e.GetPosition()
-		enemies = append(enemies, network.EnemyState{
+		enemies = append(enemies, EnemyState{
 			EnemyID: e.ID,
 			Type:    e.Type,
 			HP:      hp,
@@ -364,13 +367,13 @@ func (b *Battle) SyncState() {
 	}
 	
 	// 收集塔状态
-	towers := make([]network.TowerState, 0, len(b.Towers))
+	towers := make([]TowerState, 0, len(b.Towers))
 	for _, t := range b.Towers {
 		targetID := ""
 		if t.Target != nil {
 			targetID = t.Target.ID
 		}
-		towers = append(towers, network.TowerState{
+		towers = append(towers, TowerState{
 			TowerID:  t.ID,
 			Type:     t.Type,
 			Level:    t.Level,
@@ -383,7 +386,7 @@ func (b *Battle) SyncState() {
 	
 	// 发送给每个玩家
 	for _, player := range b.Players {
-		sync := network.SyncStateBroadcast{
+		sync := SyncStateBroadcast{
 			Gold:    player.GetGold(),
 			Life:    player.GetLife(),
 			WaveNum: b.WaveNum,
@@ -391,42 +394,48 @@ func (b *Battle) SyncState() {
 			Towers:  towers,
 		}
 		
-		if session := network.GetSessionManager().GetSessionByPlayerID(player.ID); session != nil {
-			session.SendMessage(network.MsgTypeSyncState, sync)
-		}
+		globalBroadcaster.BroadcastToPlayer(player.ID, MsgTypeSyncState, sync)
 	}
 }
 
 // BroadcastWaveStart 广播波次开始
 func (b *Battle) BroadcastWaveStart() {
-	broadcast := network.WaveStartBroadcast{
+	if globalBroadcaster == nil {
+		return
+	}
+	
+	broadcast := WaveStartBroadcast{
 		WaveNum: b.WaveNum,
 	}
 	
 	for _, player := range b.Players {
-		if session := network.GetSessionManager().GetSessionByPlayerID(player.ID); session != nil {
-			session.SendMessage(network.MsgTypeWaveStart, broadcast)
-		}
+		globalBroadcaster.BroadcastToPlayer(player.ID, MsgTypeWaveStart, broadcast)
 	}
 }
 
 // BroadcastWaveComplete 广播波次完成
 func (b *Battle) BroadcastWaveComplete() {
-	broadcast := network.WaveCompleteBroadcast{
+	if globalBroadcaster == nil {
+		return
+	}
+	
+	broadcast := WaveCompleteBroadcast{
 		WaveNum: b.WaveNum,
 		Reward:  b.CurrentWave.Reward,
 	}
 	
 	for _, player := range b.Players {
-		if session := network.GetSessionManager().GetSessionByPlayerID(player.ID); session != nil {
-			session.SendMessage(network.MsgTypeWaveComplete, broadcast)
-		}
+		globalBroadcaster.BroadcastToPlayer(player.ID, MsgTypeWaveComplete, broadcast)
 	}
 }
 
 // BroadcastDamage 广播伤害
 func (b *Battle) BroadcastDamage(towerID, enemyID string, damage int, isCrit, isKill bool) {
-	broadcast := network.SyncDamageBroadcast{
+	if globalBroadcaster == nil {
+		return
+	}
+	
+	broadcast := SyncDamageBroadcast{
 		TowerID: towerID,
 		EnemyID: enemyID,
 		Damage:  damage,
@@ -435,14 +444,16 @@ func (b *Battle) BroadcastDamage(towerID, enemyID string, damage int, isCrit, is
 	}
 	
 	for _, player := range b.Players {
-		if session := network.GetSessionManager().GetSessionByPlayerID(player.ID); session != nil {
-			session.SendMessage(network.MsgTypeSyncDamage, broadcast)
-		}
+		globalBroadcaster.BroadcastToPlayer(player.ID, MsgTypeSyncDamage, broadcast)
 	}
 }
 
 // BroadcastGameOver 广播游戏结束
 func (b *Battle) BroadcastGameOver() {
+	if globalBroadcaster == nil {
+		return
+	}
+	
 	totalKills := 0
 	totalDamage := int64(0)
 	
@@ -450,7 +461,7 @@ func (b *Battle) BroadcastGameOver() {
 		totalKills += player.KillCount
 	}
 	
-	broadcast := network.GameOverBroadcast{
+	broadcast := GameOverBroadcast{
 		IsVictory:   b.IsVictory,
 		TotalWaves:  b.WaveNum,
 		KillCount:   totalKills,
@@ -459,8 +470,6 @@ func (b *Battle) BroadcastGameOver() {
 	}
 	
 	for _, player := range b.Players {
-		if session := network.GetSessionManager().GetSessionByPlayerID(player.ID); session != nil {
-			session.SendMessage(network.MsgTypeGameOver, broadcast)
-		}
+		globalBroadcaster.BroadcastToPlayer(player.ID, MsgTypeGameOver, broadcast)
 	}
 }
