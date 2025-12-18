@@ -28,7 +28,7 @@ func main() {
 	
 	// 初始化日志
 	utils.InitLogger()
-	加载配置
+	//加载配置
 	config.LoadConfig()
 	
 	// 初始化存储层
@@ -86,13 +86,20 @@ func startAccountServer() {
 		w.Write([]byte("404 Not Found"))
 	})
 	
-	utils.Info("账号服务器监听地址: %s", *addr)
+	// 如果命令行未指定地址，使用配置文件
+	listenAddr := *addr
+	if *addr == ":8080" && config.Server.Host != "" {
+		// 使用配置文件的IP
+		listenAddr = fmt.Sprintf("%s%s", config.Server.Host, config.Server.Port)
+	}
+	
+	utils.Info("账号服务器监听地址: %s", listenAddr)
 	utils.Info("API接口:")
 	utils.Info("  - POST /api/register  注册")
 	utils.Info("  - POST /api/login     登录")
 	utils.Info("  - GET  /api/servers   获取区服列表")
 	
-	err := http.ListenAndServe(*addr, nil)
+	err := http.ListenAndServe(listenAddr, nil)
 	if err != nil {
 		log.Fatal("账号服启动失败: ", err)
 	}
@@ -148,7 +155,7 @@ func startGameServer() {
 	utils.Info("游戏服务器 [%s] 启动", *serverName)
 	utils.Info("服务器ID: %d", *serverID)
 	utils.Info("监听地址: %s", *addr)
-	utils.Info("WebSocket: ws://localhost%s/ws", *addr)
+	utils.Info("WebSocket: ws://192.168.2.100%s/ws", *addr)
 	
 	err := http.ListenAndServe(*addr, nil)
 	if err != nil {

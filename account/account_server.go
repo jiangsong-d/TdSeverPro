@@ -77,7 +77,6 @@ func (as *AccountServer) LoadAccountsFromStorage() {
 	// 启动时加载所有账号到内存（可选优化）
 	// 对于大量账号，可以按需加载
 	utils.Info("账号数据已就绪，使用持久化存储")
-	return accountServer
 }
 
 // InitGameServers 初始化区服列表（实际应该从数据库或配置文件加载）
@@ -86,7 +85,7 @@ func (as *AccountServer) InitGameServers() {
 		{
 			ServerID:   1,
 			ServerName: "一区-烈焰",
-			Host:       "localhost",
+			Host:       "192.168.2.100",
 			Port:       8081,
 			Status:     "online",
 			OnlineNum:  125,
@@ -97,7 +96,7 @@ func (as *AccountServer) InitGameServers() {
 		{
 			ServerID:   2,
 			ServerName: "二区-寒冰",
-			Host:       "localhost",
+			Host:       "192.168.2.100",
 			Port:       8082,
 			Status:     "online",
 			OnlineNum:  68,
@@ -108,7 +107,7 @@ func (as *AccountServer) InitGameServers() {
 		{
 			ServerID:   3,
 			ServerName: "三区-雷霆",
-			Host:       "localhost",
+			Host:       "192.168.2.100",
 			Port:       8083,
 			Status:     "maintain",
 			OnlineNum:  0,
@@ -150,6 +149,26 @@ func (as *AccountServer) RegisterAccount(username, password string) (*Account, e
 		CreateTime:    account.CreateTime,
 		LastLoginTime: account.LastLoginTime,
 		LoginCount:    0,
+		Status:        "active",
+	}
+	
+	if err := as.accountRepo.Save(accountData); err != nil {
+		utils.Error("保存账号到存储失败: %v", err)
+		return nil, fmt.Errorf("注册失败: %v", err)
+	}
+	
+	// 缓存到内存
+	as.accounts[username] = account
+	utils.Info("账号注册成功: %s, PlayerID: %s", username, account.PlayerID)
+	
+	return account, nil
+}
+
+// Login 登录
+func (as *AccountServer) Login(username, password string) (*Session, error) {
+	as.mu.Lock()
+	defer as.mu.Unlock()
+	
 	var account *Account
 	
 	// 先从内存缓存查找
@@ -169,7 +188,7 @@ func (as *AccountServer) RegisterAccount(username, password string) (*Account, e
 			}
 			
 			// 保存到存储
-			accountData := &repository.AccountData{
+			newAccountData := &repository.AccountData{
 				Username:      account.Username,
 				Password:      account.Password,
 				PlayerID:      account.PlayerID,
@@ -181,7 +200,7 @@ func (as *AccountServer) RegisterAccount(username, password string) (*Account, e
 				Status:        "active",
 			}
 			
-			if err := as.accountRepo.Save(accountData); err != nil {
+			if err := as.accountRepo.Save(newAccountData); err != nil {
 				utils.Error("保存账号失败: %v", err)
 				return nil, fmt.Errorf("登录失败: %v", err)
 			}
@@ -225,27 +244,7 @@ func (as *AccountServer) RegisterAccount(username, password string) (*Account, e
 	}
 	
 	as.tokens[token] = session
-	utils.Info("玩家登录成功: %s, PlayerID: %s, Token: %s", username, account.PlayerID
-		utils.Info("自动注册新账号: %s", username)
-	} else {
-		// 验证密码
-		if account.Password != hashPassword(password) {
-			return nil, fmt.Errorf("密码错误")
-		}
-		account.LastLoginTime = time.Now()
-	}
-	
-	// 生成token
-	token := uuid.New().String()
-	session := &Session{
-		Token:      token,
-		PlayerID:   account.PlayerID,
-		Username:   account.Username,
-		ExpireTime: time.Now().Add(24 * time.Hour), // 24小时有效
-	}
-	
-	as.tokens[token] = session
-	utils.Info("玩家登录成功: %s, Token: %s", username, token)
+	utils.Info("玩家登录成功: %s, PlayerID: %s, Token: %s", username, account.PlayerID, token)
 	
 	return session, nil
 }
@@ -387,18 +386,29 @@ func HandleGetServerList(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get("Authorization")
 	if token == "" {
 		token = r.URL.Query().Get("token")
+	} else {
+		// 去掉 "Bearer " 前缀
+		if len(token) > 7 && token[:7] == "Bearer " {
+			token = token[7:]
+		}
 	}
 	
 	if token == "" {
+		utils.Error("获取服务器列表失败: 缺少token")
 		sendError(w, "缺少token")
 		return
 	}
 	
+	utils.Info("验证token: %s", token)
+	
 	session, err := GetAccountServer().VerifyToken(token)
 	if err != nil {
+		utils.Error("token验证失败: %v", err)
 		sendError(w, err.Error())
 		return
 	}
+	
+	utils.Info("token验证成功，玩家: %s", session.Username)
 	
 	servers := GetAccountServer().GetGameServerList()
 	

@@ -8,6 +8,7 @@ import (
 
 // ServerConfig 服务器配置
 type ServerConfig struct {
+	Host              string  `json:"host"`               // 监听IP地址
 	Port              string  `json:"port"`
 	MaxPlayers        int     `json:"max_players"`
 	RoomCapacity      int     `json:"room_capacity"`
@@ -40,6 +41,7 @@ var (
 func LoadConfig() {
 	// 默认配置
 	Server = ServerConfig{
+		Host:              "0.0.0.0",  // 监听所有网卡
 		Port:              ":8080",
 		MaxPlayers:        1000,
 		RoomCapacity:      4,
@@ -63,13 +65,25 @@ func LoadConfig() {
 		},
 	}
 	
-	// 尝试从文件加载
+	// 尝试从文件加载并应用
 	if file, err := os.ReadFile("config.json"); err == nil {
-		var cfg map[string]interface{}
+		// 创建临时结构体用于解析
+		var cfg struct {
+			Server  ServerConfig  `json:"server"`
+			Game    GameConfig    `json:"game"`
+			Storage StorageConfig `json:"storage"`
+		}
+		
 		if err := json.Unmarshal(file, &cfg); err == nil {
-			utils.Info("配置文件加载成功")
+			// 应用配置
+			Server = cfg.Server
+			Game = cfg.Game
+			Storage = cfg.Storage
+			utils.Info("配置文件加载成功: config.json")
+		} else {
+			utils.Warn("配置文件解析失败，使用默认配置: %v", err)
 		}
 	} else {
-		utils.Info("使用默认配置")
+		utils.Info("未找到配置文件，使用默认配置")
 	}
 }

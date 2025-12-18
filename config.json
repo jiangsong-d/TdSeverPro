@@ -1,5 +1,6 @@
 {
   "server": {
+    "host": "0.0.0.0",
     "port": ":8080",
     "max_players": 1000,
     "room_capacity": 4,

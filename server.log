@@ -73,3 +73,123 @@
 [INFO] 2025/12/17 23:46:41 main.go:75:   - POST /api/register  注册
 [INFO] 2025/12/17 23:46:41 main.go:76:   - POST /api/login     登录
 [INFO] 2025/12/17 23:46:41 main.go:77:   - GET  /api/servers   获取区服列表
+[INFO] 2025/12/18 22:14:55 main.go:43: === 账号服务器启动 ===
+[INFO] 2025/12/18 22:14:55 account_server.go:67: 账号服务器初始化完成
+[INFO] 2025/12/18 22:14:55 main.go:73: 账号服务器监听地址: :8080
+[INFO] 2025/12/18 22:14:55 main.go:74: API接口:
+[INFO] 2025/12/18 22:14:55 main.go:75:   - POST /api/register  注册
+[INFO] 2025/12/18 22:14:55 main.go:76:   - POST /api/login     登录
+[INFO] 2025/12/18 22:14:55 main.go:77:   - GET  /api/servers   获取区服列表
+[INFO] 2025/12/18 22:32:46 config.go:82: 配置文件加载成功: config.json
+[INFO] 2025/12/18 22:32:46 txt_storage.go:40: TXT存储初始化完成，数据目录: ./data
+[INFO] 2025/12/18 22:32:46 factory.go:37: 存储层初始化完成，类型: txt
+[INFO] 2025/12/18 22:32:46 main.go:44: 存储层初始化成功，类型: txt
+[INFO] 2025/12/18 22:32:46 main.go:59: === 账号服务器启动 ===
+[INFO] 2025/12/18 22:32:46 account_server.go:79: 账号数据已就绪，使用持久化存储
+[INFO] 2025/12/18 22:32:46 account_server.go:70: 账号服务器初始化完成
+[INFO] 2025/12/18 22:32:46 main.go:96: 账号服务器监听地址: 0.0.0.0:8080
+[INFO] 2025/12/18 22:32:46 main.go:97: API接口:
+[INFO] 2025/12/18 22:32:46 main.go:98:   - POST /api/register  注册
+[INFO] 2025/12/18 22:32:46 main.go:99:   - POST /api/login     登录
+[INFO] 2025/12/18 22:32:46 main.go:100:   - GET  /api/servers   获取区服列表
+[INFO] 2025/12/18 22:32:46 config.go:82: 配置文件加载成功: config.json
+[INFO] 2025/12/18 22:32:46 txt_storage.go:40: TXT存储初始化完成，数据目录: ./data
+[INFO] 2025/12/18 22:32:46 factory.go:37: 存储层初始化完成，类型: txt
+[INFO] 2025/12/18 22:32:46 main.go:44: 存储层初始化成功，类型: txt
+[INFO] 2025/12/18 22:32:46 main.go:110: === 游戏服务器启动 ===
+[INFO] 2025/12/18 22:32:46 config.go:82: 配置文件加载成功: config.json
+[INFO] 2025/12/18 22:32:46 game_server.go:31: 游戏服务器初始化: ID=1, Name=一区-烈焰, Port=:8081
+[INFO] 2025/12/18 22:32:46 room_manager.go:24: 房间管理器初始化完成
+[INFO] 2025/12/18 22:32:46 battle_manager.go:24: 战斗管理器初始化完成
+[INFO] 2025/12/18 22:32:46 main.go:155: 游戏服务器 [一区-烈焰] 启动
+[INFO] 2025/12/18 22:32:46 main.go:156: 服务器ID: 1
+[INFO] 2025/12/18 22:32:46 main.go:157: 监听地址: :8081
+[INFO] 2025/12/18 22:32:46 main.go:158: WebSocket: ws://192.168.2.100:8081/ws
+[INFO] 2025/12/18 22:32:46 config.go:82: 配置文件加载成功: config.json
+[INFO] 2025/12/18 22:32:46 txt_storage.go:40: TXT存储初始化完成，数据目录: ./data
+[INFO] 2025/12/18 22:32:46 factory.go:37: 存储层初始化完成，类型: txt
+[INFO] 2025/12/18 22:32:46 main.go:44: 存储层初始化成功，类型: txt
+[INFO] 2025/12/18 22:32:46 main.go:110: === 游戏服务器启动 ===
+[INFO] 2025/12/18 22:32:46 config.go:82: 配置文件加载成功: config.json
+[INFO] 2025/12/18 22:32:46 game_server.go:31: 游戏服务器初始化: ID=3, Name=三区-雷霆, Port=:8083
+[INFO] 2025/12/18 22:32:46 room_manager.go:24: 房间管理器初始化完成
+[INFO] 2025/12/18 22:32:46 battle_manager.go:24: 战斗管理器初始化完成
+[INFO] 2025/12/18 22:32:46 main.go:155: 游戏服务器 [三区-雷霆] 启动
+[INFO] 2025/12/18 22:32:46 main.go:156: 服务器ID: 3
+[INFO] 2025/12/18 22:32:46 main.go:157: 监听地址: :8083
+[INFO] 2025/12/18 22:32:46 main.go:158: WebSocket: ws://192.168.2.100:8083/ws
+[INFO] 2025/12/18 22:32:46 config.go:82: 配置文件加载成功: config.json
+[INFO] 2025/12/18 22:32:46 txt_storage.go:40: TXT存储初始化完成，数据目录: ./data
+[INFO] 2025/12/18 22:32:46 factory.go:37: 存储层初始化完成，类型: txt
+[INFO] 2025/12/18 22:32:46 main.go:44: 存储层初始化成功，类型: txt
+[INFO] 2025/12/18 22:32:46 main.go:110: === 游戏服务器启动 ===
+[INFO] 2025/12/18 22:32:46 config.go:82: 配置文件加载成功: config.json
+[INFO] 2025/12/18 22:32:46 game_server.go:31: 游戏服务器初始化: ID=2, Name=二区-寒冰, Port=:8082
+[INFO] 2025/12/18 22:32:46 room_manager.go:24: 房间管理器初始化完成
+[INFO] 2025/12/18 22:32:46 battle_manager.go:24: 战斗管理器初始化完成
+[INFO] 2025/12/18 22:32:46 main.go:155: 游戏服务器 [二区-寒冰] 启动
+[INFO] 2025/12/18 22:32:46 main.go:156: 服务器ID: 2
+[INFO] 2025/12/18 22:32:46 main.go:157: 监听地址: :8082
+[INFO] 2025/12/18 22:32:46 main.go:158: WebSocket: ws://192.168.2.100:8082/ws
+[INFO] 2025/12/19 00:27:53 account_server.go:162: 账号注册成功: 请输入账号, PlayerID: 1938ebdd-c8a2-45fe-8b1a-61e609ff951a
+[INFO] 2025/12/19 00:30:11 config.go:82: 配置文件加载成功: config.json
+[INFO] 2025/12/19 00:30:11 config.go:82: 配置文件加载成功: config.json
+[INFO] 2025/12/19 00:30:12 txt_storage.go:40: TXT存储初始化完成，数据目录: ./data
+[INFO] 2025/12/19 00:30:12 txt_storage.go:40: TXT存储初始化完成，数据目录: ./data
+[INFO] 2025/12/19 00:30:11 config.go:82: 配置文件加载成功: config.json
+[INFO] 2025/12/19 00:30:12 factory.go:37: 存储层初始化完成，类型: txt
+[INFO] 2025/12/19 00:30:12 factory.go:37: 存储层初始化完成，类型: txt
+[INFO] 2025/12/19 00:30:12 main.go:44: 存储层初始化成功，类型: txt
+[INFO] 2025/12/19 00:30:12 txt_storage.go:40: TXT存储初始化完成，数据目录: ./data
+[INFO] 2025/12/19 00:30:12 main.go:110: === 游戏服务器启动 ===
+[INFO] 2025/12/19 00:30:12 main.go:44: 存储层初始化成功，类型: txt
+[INFO] 2025/12/19 00:30:12 factory.go:37: 存储层初始化完成，类型: txt
+[INFO] 2025/12/19 00:30:12 main.go:44: 存储层初始化成功，类型: txt
+[INFO] 2025/12/19 00:30:12 main.go:59: === 账号服务器启动 ===
+[INFO] 2025/12/19 00:30:12 config.go:82: 配置文件加载成功: config.json
+[INFO] 2025/12/19 00:30:12 main.go:110: === 游戏服务器启动 ===
+[INFO] 2025/12/19 00:30:12 game_server.go:31: 游戏服务器初始化: ID=2, Name=二区-寒冰, Port=:8082
+[INFO] 2025/12/19 00:30:12 account_server.go:79: 账号数据已就绪，使用持久化存储
+[INFO] 2025/12/19 00:30:12 room_manager.go:24: 房间管理器初始化完成
+[INFO] 2025/12/19 00:30:12 account_server.go:70: 账号服务器初始化完成
+[INFO] 2025/12/19 00:30:12 config.go:82: 配置文件加载成功: config.json
+[INFO] 2025/12/19 00:30:12 battle_manager.go:24: 战斗管理器初始化完成
+[INFO] 2025/12/19 00:30:11 config.go:82: 配置文件加载成功: config.json
+[INFO] 2025/12/19 00:30:12 main.go:155: 游戏服务器 [二区-寒冰] 启动
+[INFO] 2025/12/19 00:30:12 main.go:156: 服务器ID: 2
+[INFO] 2025/12/19 00:30:12 game_server.go:31: 游戏服务器初始化: ID=3, Name=三区-雷霆, Port=:8083
+[INFO] 2025/12/19 00:30:12 main.go:157: 监听地址: :8082
+[INFO] 2025/12/19 00:30:12 main.go:96: 账号服务器监听地址: 0.0.0.0:8080
+[INFO] 2025/12/19 00:30:12 room_manager.go:24: 房间管理器初始化完成
+[INFO] 2025/12/19 00:30:12 txt_storage.go:40: TXT存储初始化完成，数据目录: ./data
+[INFO] 2025/12/19 00:30:12 main.go:158: WebSocket: ws://192.168.2.100:8082/ws
+[INFO] 2025/12/19 00:30:12 battle_manager.go:24: 战斗管理器初始化完成
+[INFO] 2025/12/19 00:30:12 factory.go:37: 存储层初始化完成，类型: txt
+[INFO] 2025/12/19 00:30:12 main.go:97: API接口:
+[INFO] 2025/12/19 00:30:12 main.go:155: 游戏服务器 [三区-雷霆] 启动
+[INFO] 2025/12/19 00:30:12 main.go:44: 存储层初始化成功，类型: txt
+[INFO] 2025/12/19 00:30:12 main.go:98:   - POST /api/register  注册
+[INFO] 2025/12/19 00:30:12 main.go:156: 服务器ID: 3
+[INFO] 2025/12/19 00:30:12 main.go:99:   - POST /api/login     登录
+[INFO] 2025/12/19 00:30:12 main.go:110: === 游戏服务器启动 ===
+[INFO] 2025/12/19 00:30:12 main.go:157: 监听地址: :8083
+[INFO] 2025/12/19 00:30:12 main.go:158: WebSocket: ws://192.168.2.100:8083/ws
+[INFO] 2025/12/19 00:30:12 config.go:82: 配置文件加载成功: config.json
+[INFO] 2025/12/19 00:30:12 main.go:100:   - GET  /api/servers   获取区服列表
+[INFO] 2025/12/19 00:30:12 game_server.go:31: 游戏服务器初始化: ID=1, Name=一区-烈焰, Port=:8081
+[INFO] 2025/12/19 00:30:12 room_manager.go:24: 房间管理器初始化完成
+[INFO] 2025/12/19 00:30:12 battle_manager.go:24: 战斗管理器初始化完成
+[INFO] 2025/12/19 00:30:12 main.go:155: 游戏服务器 [一区-烈焰] 启动
+[INFO] 2025/12/19 00:30:12 main.go:156: 服务器ID: 1
+[INFO] 2025/12/19 00:30:12 main.go:157: 监听地址: :8081
+[INFO] 2025/12/19 00:30:12 main.go:158: WebSocket: ws://192.168.2.100:8081/ws
+[INFO] 2025/12/19 00:30:53 account_server.go:162: 账号注册成功: 11111, PlayerID: 7bd5544b-1775-4153-9fb5-e2600db9cf09
+[INFO] 2025/12/19 00:33:48 account_server.go:162: 账号注册成功: 1111, PlayerID: adc24411-eb09-4904-b9fe-d976f8042eb3
+[INFO] 2025/12/19 00:35:44 account_server.go:162: 账号注册成功: 2222, PlayerID: e727d427-2704-4785-be9d-941d25a4e3bc
+[INFO] 2025/12/19 00:41:18 account_server.go:247: 玩家登录成功: 2222, PlayerID: e727d427-2704-4785-be9d-941d25a4e3bc, Token: 72eae257-5189-4fdf-b105-a2080366f9ef
+[INFO] 2025/12/19 00:45:07 account_server.go:247: 玩家登录成功: 2222, PlayerID: e727d427-2704-4785-be9d-941d25a4e3bc, Token: 51911a01-4045-441f-b925-61219b75e769
+[INFO] 2025/12/19 00:46:00 account_server.go:247: 玩家登录成功: 2222, PlayerID: e727d427-2704-4785-be9d-941d25a4e3bc, Token: e2fead75-019a-44df-b6b3-fc9e2f12dc53
+[INFO] 2025/12/19 00:48:08 account_server.go:247: 玩家登录成功: 2222, PlayerID: e727d427-2704-4785-be9d-941d25a4e3bc, Token: b3117463-ed22-4f8a-a47e-75b09705836a
+[INFO] 2025/12/19 00:54:14 account_server.go:247: 玩家登录成功: 2222, PlayerID: e727d427-2704-4785-be9d-941d25a4e3bc, Token: 7e71c872-bc7d-4d0c-b760-bb1edd00097c
+[INFO] 2025/12/19 01:00:05 account_server.go:247: 玩家登录成功: 2222, PlayerID: e727d427-2704-4785-be9d-941d25a4e3bc, Token: 13b4dc24-5dc5-42c6-b0da-84139ca62b5c
+[INFO] 2025/12/19 01:02:15 account_server.go:247: 玩家登录成功: 2222, PlayerID: e727d427-2704-4785-be9d-941d25a4e3bc, Token: 5b461e5d-1964-4ab8-9086-e861643b12c2
