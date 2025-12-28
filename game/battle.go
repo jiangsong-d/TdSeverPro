@@ -394,7 +394,7 @@ func (b *Battle) SyncState() {
 			Towers:  towers,
 		}
 		
-		globalBroadcaster.BroadcastToPlayer(player.ID, MsgTypeSyncState, sync)
+		globalBroadcaster.BroadcastToPlayer(player.ID, MsgTypeSyncStateNtf, sync)
 	}
 }
 
@@ -409,7 +409,7 @@ func (b *Battle) BroadcastWaveStart() {
 	}
 	
 	for _, player := range b.Players {
-		globalBroadcaster.BroadcastToPlayer(player.ID, MsgTypeWaveStart, broadcast)
+		globalBroadcaster.BroadcastToPlayer(player.ID, MsgTypeWaveStartRsp, broadcast)
 	}
 }
 
@@ -425,7 +425,7 @@ func (b *Battle) BroadcastWaveComplete() {
 	}
 	
 	for _, player := range b.Players {
-		globalBroadcaster.BroadcastToPlayer(player.ID, MsgTypeWaveComplete, broadcast)
+		globalBroadcaster.BroadcastToPlayer(player.ID, MsgTypeWaveCompleteNtf, broadcast)
 	}
 }
 
@@ -444,7 +444,7 @@ func (b *Battle) BroadcastDamage(towerID, enemyID string, damage int, isCrit, is
 	}
 	
 	for _, player := range b.Players {
-		globalBroadcaster.BroadcastToPlayer(player.ID, MsgTypeSyncDamage, broadcast)
+		globalBroadcaster.BroadcastToPlayer(player.ID, MsgTypeSyncDamageNtf, broadcast)
 	}
 }
 
@@ -470,6 +470,6 @@ func (b *Battle) BroadcastGameOver() {
 	}
 	
 	for _, player := range b.Players {
-		globalBroadcaster.BroadcastToPlayer(player.ID, MsgTypeGameOver, broadcast)
+		globalBroadcaster.BroadcastToPlayer(player.ID, MsgTypeGameOverNtf, broadcast)
 	}
 }

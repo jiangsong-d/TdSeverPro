@@ -93,28 +93,6 @@ func (as *AccountServer) InitGameServers() {
 			Recommend:  true,
 			IsNew:      false,
 		},
-		{
-			ServerID:   2,
-			ServerName: "二区-寒冰",
-			Host:       "192.168.2.100",
-			Port:       8082,
-			Status:     "online",
-			OnlineNum:  68,
-			MaxPlayer:  1000,
-			Recommend:  false,
-			IsNew:      true,
-		},
-		{
-			ServerID:   3,
-			ServerName: "三区-雷霆",
-			Host:       "192.168.2.100",
-			Port:       8083,
-			Status:     "maintain",
-			OnlineNum:  0,
-			MaxPlayer:  1000,
-			Recommend:  false,
-			IsNew:      false,
-		},
 	}
 }
 

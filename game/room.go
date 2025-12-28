@@ -182,7 +182,7 @@ func (r *Room) BroadcastRoomInfo() {
 	
 	// 发送给房间内所有玩家
 	for _, p := range players {
-		globalBroadcaster.BroadcastToPlayer(p.ID, MsgTypeRoomInfo, broadcast)
+		globalBroadcaster.BroadcastToPlayer(p.ID, MsgTypeRoomInfoRsp, broadcast)
 	}
 }
 

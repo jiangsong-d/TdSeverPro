@@ -14,7 +14,7 @@ func (gmb *GameMessageBroadcaster) BroadcastToPlayer(playerID string, msgType in
 	session := GetSessionManager().GetSessionByPlayerID(playerID)
 	if session != nil && data != nil {
 		if protoMsg, ok := data.(proto.Message); ok {
-			session.SendProtoMessage(pb.MessageType(msgType), protoMsg)
+			session.SendProtoMessage(pb.Cmd(msgType), protoMsg)
 		}
 	}
 }

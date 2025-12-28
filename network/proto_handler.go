@@ -10,29 +10,31 @@ import (
 
 // HandleProtoMessage 处理 protobuf 消息
 func (s *Session) HandleProtoMessage(packet *pb.NetworkPacket) {
-	msgType := pb.MessageType(packet.Cmd)
+	msgType := pb.Cmd(packet.Cmd)
 	
 	switch msgType {
-	case pb.MessageType_MSG_HEARTBEAT:
+	case pb.Cmd_MSG_HEARTBEAT_REQ:
 		s.handleProtoHeartbeat(packet.Payload)
-	case pb.MessageType_MSG_LOGIN:
+	case pb.Cmd_MSG_LOGIN_REQ:
 		s.handleProtoLogin(packet.Payload)
-	case pb.MessageType_MSG_LOGOUT:
+	case pb.Cmd_MSG_LOGOUT_REQ:
 		s.handleProtoLogout(packet.Payload)
-	case pb.MessageType_MSG_CREATE_ROOM:
+	case pb.Cmd_MSG_CREATE_ROOM_REQ:
 		s.handleProtoCreateRoom(packet.Payload)
-	case pb.MessageType_MSG_JOIN_ROOM:
+	case pb.Cmd_MSG_JOIN_ROOM_REQ:
 		s.handleProtoJoinRoom(packet.Payload)
-	case pb.MessageType_MSG_LEAVE_ROOM:
+	case pb.Cmd_MSG_LEAVE_ROOM_REQ:
 		s.handleProtoLeaveRoom(packet.Payload)
-	case pb.MessageType_MSG_START_GAME:
+	case pb.Cmd_MSG_START_GAME_REQ:
 		s.handleProtoStartGame(packet.Payload)
-	case pb.MessageType_MSG_PLACE_TOWER:
+	case pb.Cmd_MSG_PLACE_TOWER_REQ:
 		s.handleProtoPlaceTower(packet.Payload)
-	case pb.MessageType_MSG_UPGRADE_TOWER:
+	case pb.Cmd_MSG_UPGRADE_TOWER_REQ:
 		s.handleProtoUpgradeTower(packet.Payload)
-	case pb.MessageType_MSG_SELL_TOWER:
+	case pb.Cmd_MSG_SELL_TOWER_REQ:
 		s.handleProtoSellTower(packet.Payload)
+	case pb.Cmd_MSG_WAVE_START_REQ:
+		s.handleProtoWaveStart(packet.Payload)
 	default:
 		utils.Warn("未知消息类型: %d", msgType)
 		s.SendProtoError(pb.ErrorCode_ERROR_INVALID_PARAM, "未知的消息类型")
@@ -40,7 +42,7 @@ func (s *Session) HandleProtoMessage(packet *pb.NetworkPacket) {
 }
 
 // SendProtoMessage 发送 protobuf 消息
-func (s *Session) SendProtoMessage(msgType pb.MessageType, message proto.Message) error {
+func (s *Session) SendProtoMessage(msgType pb.Cmd, message proto.Message) error {
 	payload, err := proto.Marshal(message)
 	if err != nil {
 		utils.Error("序列化消息失败: %v", err)
@@ -71,7 +73,7 @@ func (s *Session) SendProtoError(code pb.ErrorCode, message string) error {
 		Message: message,
 	}
 	
-	return s.SendProtoMessage(pb.MessageType_MSG_ERROR, errResp)
+	return s.SendProtoMessage(pb.Cmd_MSG_ERROR, errResp)
 }
 
 // ========== 连接相关消息处理 ==========
@@ -89,7 +91,7 @@ func (s *Session) handleProtoHeartbeat(payload []byte) {
 		Ping:       int32(time.Now().Unix() - req.Timestamp),
 	}
 	
-	s.SendProtoMessage(pb.MessageType_MSG_HEARTBEAT, resp)
+	s.SendProtoMessage(pb.Cmd_MSG_HEARTBEAT_RSP, resp)
 }
 
 func (s *Session) handleProtoLogin(payload []byte) {
@@ -132,7 +134,7 @@ func (s *Session) handleProtoLogin(payload []byte) {
 		},
 	}
 	
-	s.SendProtoMessage(pb.MessageType_MSG_LOGIN, resp)
+	s.SendProtoMessage(pb.Cmd_MSG_LOGIN_RSP, resp)
 	utils.Info("玩家 %s (%s) 登录成功", req.PlayerName, req.PlayerId)
 }
 
@@ -147,7 +149,7 @@ func (s *Session) handleProtoLogout(payload []byte) {
 		Success: true,
 	}
 	
-	s.SendProtoMessage(pb.MessageType_MSG_LOGOUT, resp)
+	s.SendProtoMessage(pb.Cmd_MSG_LOGOUT_RSP, resp)
 	utils.Info("玩家 %s 登出", s.PlayerName)
 	
 	// 清理会话
@@ -169,7 +171,7 @@ func (s *Session) handleProtoCreateRoom(payload []byte) {
 		RoomId:  "room_" + s.PlayerID,
 	}
 	
-	s.SendProtoMessage(pb.MessageType_MSG_CREATE_ROOM, resp)
+	s.SendProtoMessage(pb.Cmd_MSG_CREATE_ROOM_RSP, resp)
 }
 
 func (s *Session) handleProtoJoinRoom(payload []byte) {
@@ -185,7 +187,7 @@ func (s *Session) handleProtoJoinRoom(payload []byte) {
 		RoomInfo: &pb.RoomInfo{},
 	}
 	
-	s.SendProtoMessage(pb.MessageType_MSG_JOIN_ROOM, resp)
+	s.SendProtoMessage(pb.Cmd_MSG_JOIN_ROOM_RSP, resp)
 }
 
 func (s *Session) handleProtoLeaveRoom(payload []byte) {
@@ -200,7 +202,7 @@ func (s *Session) handleProtoLeaveRoom(payload []byte) {
 		Success: true,
 	}
 	
-	s.SendProtoMessage(pb.MessageType_MSG_LEAVE_ROOM, resp)
+	s.SendProtoMessage(pb.Cmd_MSG_LEAVE_ROOM_RSP, resp)
 }
 
 func (s *Session) handleProtoStartGame(payload []byte) {
@@ -215,7 +217,7 @@ func (s *Session) handleProtoStartGame(payload []byte) {
 		Success: true,
 	}
 	
-	s.SendProtoMessage(pb.MessageType_MSG_START_GAME, resp)
+	s.SendProtoMessage(pb.Cmd_MSG_START_GAME_RSP, resp)
 }
 
 // ========== 战斗相关消息处理 ==========
@@ -233,7 +235,7 @@ func (s *Session) handleProtoPlaceTower(payload []byte) {
 		TowerId: "tower_" + s.PlayerID,
 	}
 	
-	s.SendProtoMessage(pb.MessageType_MSG_PLACE_TOWER, resp)
+	s.SendProtoMessage(pb.Cmd_MSG_PLACE_TOWER_RSP, resp)
 }
 
 func (s *Session) handleProtoUpgradeTower(payload []byte) {
@@ -250,7 +252,7 @@ func (s *Session) handleProtoUpgradeTower(payload []byte) {
 		Level:   2,
 	}
 	
-	s.SendProtoMessage(pb.MessageType_MSG_UPGRADE_TOWER, resp)
+	s.SendProtoMessage(pb.Cmd_MSG_UPGRADE_TOWER_RSP, resp)
 }
 
 func (s *Session) handleProtoSellTower(payload []byte) {
@@ -267,5 +269,10 @@ func (s *Session) handleProtoSellTower(payload []byte) {
 		Refund:  100,
 	}
 	
-	s.SendProtoMessage(pb.MessageType_MSG_SELL_TOWER, resp)
+	s.SendProtoMessage(pb.Cmd_MSG_SELL_TOWER_RSP, resp)
+}
+
+func (s *Session) handleProtoWaveStart(payload []byte) {
+	// TODO: 实现波次开始逻辑
+	utils.Info("玩家 %s 请求开始波次", s.PlayerName)
 }

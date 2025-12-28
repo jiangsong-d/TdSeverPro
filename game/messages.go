@@ -1,13 +1,20 @@
 package game
 
-// 消息类型常量
+// 消息类型常量 - 与 proto Cmd 枚举保持一致
 const (
-	MsgTypeRoomInfo     = 2004
-	MsgTypeSyncState    = 4001
-	MsgTypeWaveStart    = 3004
-	MsgTypeWaveComplete = 3005
-	MsgTypeSyncDamage   = 4004
-	MsgTypeGameOver     = 3006
+	// 房间相关 RSP/NTF
+	MsgTypeRoomInfoRsp    = 2007
+	
+	// 战斗相关 RSP/NTF
+	MsgTypeWaveStartRsp   = 3007
+	MsgTypeWaveCompleteNtf = 3008
+	MsgTypeGameOverNtf    = 3009
+	
+	// 同步相关 NTF
+	MsgTypeSyncStateNtf   = 4000
+	MsgTypeSyncEnemyNtf   = 4001
+	MsgTypeSyncTowerNtf   = 4002
+	MsgTypeSyncDamageNtf  = 4003
 )
 
 // 状态同步广播结构

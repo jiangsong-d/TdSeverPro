@@ -21,108 +21,144 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type MessageType int32
+type Cmd int32
 
 const (
-	MessageType_MSG_NONE MessageType = 0
+	Cmd_MSG_NONE Cmd = 0
 	// 连接相关 1000-1099
-	MessageType_MSG_HEARTBEAT MessageType = 1000
-	MessageType_MSG_LOGIN     MessageType = 1001
-	MessageType_MSG_LOGOUT    MessageType = 1002
+	Cmd_MSG_HEARTBEAT_REQ Cmd = 1000
+	Cmd_MSG_HEARTBEAT_RSP Cmd = 1001
+	Cmd_MSG_LOGIN_REQ     Cmd = 1002
+	Cmd_MSG_LOGIN_RSP     Cmd = 1003
+	Cmd_MSG_LOGOUT_REQ    Cmd = 1004
+	Cmd_MSG_LOGOUT_RSP    Cmd = 1005
 	// 房间相关 2000-2099
-	MessageType_MSG_CREATE_ROOM MessageType = 2001
-	MessageType_MSG_JOIN_ROOM   MessageType = 2002
-	MessageType_MSG_LEAVE_ROOM  MessageType = 2003
-	MessageType_MSG_ROOM_INFO   MessageType = 2004
-	MessageType_MSG_START_GAME  MessageType = 2005
+	Cmd_MSG_CREATE_ROOM_REQ Cmd = 2000
+	Cmd_MSG_CREATE_ROOM_RSP Cmd = 2001
+	Cmd_MSG_JOIN_ROOM_REQ   Cmd = 2002
+	Cmd_MSG_JOIN_ROOM_RSP   Cmd = 2003
+	Cmd_MSG_LEAVE_ROOM_REQ  Cmd = 2004
+	Cmd_MSG_LEAVE_ROOM_RSP  Cmd = 2005
+	Cmd_MSG_ROOM_INFO_REQ   Cmd = 2006
+	Cmd_MSG_ROOM_INFO_RSP   Cmd = 2007
+	Cmd_MSG_START_GAME_REQ  Cmd = 2008
+	Cmd_MSG_START_GAME_RSP  Cmd = 2009
 	// 战斗相关 3000-3099
-	MessageType_MSG_PLACE_TOWER   MessageType = 3001
-	MessageType_MSG_UPGRADE_TOWER MessageType = 3002
-	MessageType_MSG_SELL_TOWER    MessageType = 3003
-	MessageType_MSG_WAVE_START    MessageType = 3004
-	MessageType_MSG_WAVE_COMPLETE MessageType = 3005
-	MessageType_MSG_GAME_OVER     MessageType = 3006
-	// 同步相关 4000-4099
-	MessageType_MSG_SYNC_STATE  MessageType = 4001
-	MessageType_MSG_SYNC_ENEMY  MessageType = 4002
-	MessageType_MSG_SYNC_TOWER  MessageType = 4003
-	MessageType_MSG_SYNC_DAMAGE MessageType = 4004
+	Cmd_MSG_PLACE_TOWER_REQ   Cmd = 3000
+	Cmd_MSG_PLACE_TOWER_RSP   Cmd = 3001
+	Cmd_MSG_UPGRADE_TOWER_REQ Cmd = 3002
+	Cmd_MSG_UPGRADE_TOWER_RSP Cmd = 3003
+	Cmd_MSG_SELL_TOWER_REQ    Cmd = 3004
+	Cmd_MSG_SELL_TOWER_RSP    Cmd = 3005
+	Cmd_MSG_WAVE_START_REQ    Cmd = 3006
+	Cmd_MSG_WAVE_START_RSP    Cmd = 3007
+	Cmd_MSG_WAVE_COMPLETE_NTF Cmd = 3008 // 服务器通知，无需请求
+	Cmd_MSG_GAME_OVER_NTF     Cmd = 3009 // 服务器通知，无需请求
+	// 同步相关 4000-4099 (服务器主动推送，使用 NTF 后缀)
+	Cmd_MSG_SYNC_STATE_NTF  Cmd = 4000
+	Cmd_MSG_SYNC_ENEMY_NTF  Cmd = 4001
+	Cmd_MSG_SYNC_TOWER_NTF  Cmd = 4002
+	Cmd_MSG_SYNC_DAMAGE_NTF Cmd = 4003
 	// 错误消息 9999
-	MessageType_MSG_ERROR MessageType = 9999
+	Cmd_MSG_ERROR Cmd = 9999
 )
 
-// Enum value maps for MessageType.
+// Enum value maps for Cmd.
 var (
-	MessageType_name = map[int32]string{
+	Cmd_name = map[int32]string{
 		0:    "MSG_NONE",
-		1000: "MSG_HEARTBEAT",
-		1001: "MSG_LOGIN",
-		1002: "MSG_LOGOUT",
-		2001: "MSG_CREATE_ROOM",
-		2002: "MSG_JOIN_ROOM",
-		2003: "MSG_LEAVE_ROOM",
-		2004: "MSG_ROOM_INFO",
-		2005: "MSG_START_GAME",
-		3001: "MSG_PLACE_TOWER",
-		3002: "MSG_UPGRADE_TOWER",
-		3003: "MSG_SELL_TOWER",
-		3004: "MSG_WAVE_START",
-		3005: "MSG_WAVE_COMPLETE",
-		3006: "MSG_GAME_OVER",
-		4001: "MSG_SYNC_STATE",
-		4002: "MSG_SYNC_ENEMY",
-		4003: "MSG_SYNC_TOWER",
-		4004: "MSG_SYNC_DAMAGE",
+		1000: "MSG_HEARTBEAT_REQ",
+		1001: "MSG_HEARTBEAT_RSP",
+		1002: "MSG_LOGIN_REQ",
+		1003: "MSG_LOGIN_RSP",
+		1004: "MSG_LOGOUT_REQ",
+		1005: "MSG_LOGOUT_RSP",
+		2000: "MSG_CREATE_ROOM_REQ",
+		2001: "MSG_CREATE_ROOM_RSP",
+		2002: "MSG_JOIN_ROOM_REQ",
+		2003: "MSG_JOIN_ROOM_RSP",
+		2004: "MSG_LEAVE_ROOM_REQ",
+		2005: "MSG_LEAVE_ROOM_RSP",
+		2006: "MSG_ROOM_INFO_REQ",
+		2007: "MSG_ROOM_INFO_RSP",
+		2008: "MSG_START_GAME_REQ",
+		2009: "MSG_START_GAME_RSP",
+		3000: "MSG_PLACE_TOWER_REQ",
+		3001: "MSG_PLACE_TOWER_RSP",
+		3002: "MSG_UPGRADE_TOWER_REQ",
+		3003: "MSG_UPGRADE_TOWER_RSP",
+		3004: "MSG_SELL_TOWER_REQ",
+		3005: "MSG_SELL_TOWER_RSP",
+		3006: "MSG_WAVE_START_REQ",
+		3007: "MSG_WAVE_START_RSP",
+		3008: "MSG_WAVE_COMPLETE_NTF",
+		3009: "MSG_GAME_OVER_NTF",
+		4000: "MSG_SYNC_STATE_NTF",
+		4001: "MSG_SYNC_ENEMY_NTF",
+		4002: "MSG_SYNC_TOWER_NTF",
+		4003: "MSG_SYNC_DAMAGE_NTF",
 		9999: "MSG_ERROR",
 	}
-	MessageType_value = map[string]int32{
-		"MSG_NONE":          0,
-		"MSG_HEARTBEAT":     1000,
-		"MSG_LOGIN":         1001,
-		"MSG_LOGOUT":        1002,
-		"MSG_CREATE_ROOM":   2001,
-		"MSG_JOIN_ROOM":     2002,
-		"MSG_LEAVE_ROOM":    2003,
-		"MSG_ROOM_INFO":     2004,
-		"MSG_START_GAME":    2005,
-		"MSG_PLACE_TOWER":   3001,
-		"MSG_UPGRADE_TOWER": 3002,
-		"MSG_SELL_TOWER":    3003,
-		"MSG_WAVE_START":    3004,
-		"MSG_WAVE_COMPLETE": 3005,
-		"MSG_GAME_OVER":     3006,
-		"MSG_SYNC_STATE":    4001,
-		"MSG_SYNC_ENEMY":    4002,
-		"MSG_SYNC_TOWER":    4003,
-		"MSG_SYNC_DAMAGE":   4004,
-		"MSG_ERROR":         9999,
+	Cmd_value = map[string]int32{
+		"MSG_NONE":              0,
+		"MSG_HEARTBEAT_REQ":     1000,
+		"MSG_HEARTBEAT_RSP":     1001,
+		"MSG_LOGIN_REQ":         1002,
+		"MSG_LOGIN_RSP":         1003,
+		"MSG_LOGOUT_REQ":        1004,
+		"MSG_LOGOUT_RSP":        1005,
+		"MSG_CREATE_ROOM_REQ":   2000,
+		"MSG_CREATE_ROOM_RSP":   2001,
+		"MSG_JOIN_ROOM_REQ":     2002,
+		"MSG_JOIN_ROOM_RSP":     2003,
+		"MSG_LEAVE_ROOM_REQ":    2004,
+		"MSG_LEAVE_ROOM_RSP":    2005,
+		"MSG_ROOM_INFO_REQ":     2006,
+		"MSG_ROOM_INFO_RSP":     2007,
+		"MSG_START_GAME_REQ":    2008,
+		"MSG_START_GAME_RSP":    2009,
+		"MSG_PLACE_TOWER_REQ":   3000,
+		"MSG_PLACE_TOWER_RSP":   3001,
+		"MSG_UPGRADE_TOWER_REQ": 3002,
+		"MSG_UPGRADE_TOWER_RSP": 3003,
+		"MSG_SELL_TOWER_REQ":    3004,
+		"MSG_SELL_TOWER_RSP":    3005,
+		"MSG_WAVE_START_REQ":    3006,
+		"MSG_WAVE_START_RSP":    3007,
+		"MSG_WAVE_COMPLETE_NTF": 3008,
+		"MSG_GAME_OVER_NTF":     3009,
+		"MSG_SYNC_STATE_NTF":    4000,
+		"MSG_SYNC_ENEMY_NTF":    4001,
+		"MSG_SYNC_TOWER_NTF":    4002,
+		"MSG_SYNC_DAMAGE_NTF":   4003,
+		"MSG_ERROR":             9999,
 	}
 )
 
-func (x MessageType) Enum() *MessageType {
-	p := new(MessageType)
+func (x Cmd) Enum() *Cmd {
+	p := new(Cmd)
 	*p = x
 	return p
 }
 
-func (x MessageType) String() string {
+func (x Cmd) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (MessageType) Descriptor() protoreflect.EnumDescriptor {
+func (Cmd) Descriptor() protoreflect.EnumDescriptor {
 	return file_common_proto_enumTypes[0].Descriptor()
 }
 
-func (MessageType) Type() protoreflect.EnumType {
+func (Cmd) Type() protoreflect.EnumType {
 	return &file_common_proto_enumTypes[0]
 }
 
-func (x MessageType) Number() protoreflect.EnumNumber {
+func (x Cmd) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use MessageType.Descriptor instead.
-func (MessageType) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use Cmd.Descriptor instead.
+func (Cmd) EnumDescriptor() ([]byte, []int) {
 	return file_common_proto_rawDescGZIP(), []int{0}
 }
 
@@ -452,28 +488,39 @@ const file_common_proto_rawDesc = "" +
 	"\rErrorResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12\x16\n" +
-	"\x06detail\x18\x03 \x01(\tR\x06detail*\xa1\x03\n" +
-	"\vMessageType\x12\f\n" +
-	"\bMSG_NONE\x10\x00\x12\x12\n" +
-	"\rMSG_HEARTBEAT\x10\xe8\a\x12\x0e\n" +
-	"\tMSG_LOGIN\x10\xe9\a\x12\x0f\n" +
-	"\n" +
-	"MSG_LOGOUT\x10\xea\a\x12\x14\n" +
-	"\x0fMSG_CREATE_ROOM\x10\xd1\x0f\x12\x12\n" +
-	"\rMSG_JOIN_ROOM\x10\xd2\x0f\x12\x13\n" +
-	"\x0eMSG_LEAVE_ROOM\x10\xd3\x0f\x12\x12\n" +
-	"\rMSG_ROOM_INFO\x10\xd4\x0f\x12\x13\n" +
-	"\x0eMSG_START_GAME\x10\xd5\x0f\x12\x14\n" +
-	"\x0fMSG_PLACE_TOWER\x10\xb9\x17\x12\x16\n" +
-	"\x11MSG_UPGRADE_TOWER\x10\xba\x17\x12\x13\n" +
-	"\x0eMSG_SELL_TOWER\x10\xbb\x17\x12\x13\n" +
-	"\x0eMSG_WAVE_START\x10\xbc\x17\x12\x16\n" +
-	"\x11MSG_WAVE_COMPLETE\x10\xbd\x17\x12\x12\n" +
-	"\rMSG_GAME_OVER\x10\xbe\x17\x12\x13\n" +
-	"\x0eMSG_SYNC_STATE\x10\xa1\x1f\x12\x13\n" +
-	"\x0eMSG_SYNC_ENEMY\x10\xa2\x1f\x12\x13\n" +
-	"\x0eMSG_SYNC_TOWER\x10\xa3\x1f\x12\x14\n" +
-	"\x0fMSG_SYNC_DAMAGE\x10\xa4\x1f\x12\x0e\n" +
+	"\x06detail\x18\x03 \x01(\tR\x06detail*\x86\x06\n" +
+	"\x03Cmd\x12\f\n" +
+	"\bMSG_NONE\x10\x00\x12\x16\n" +
+	"\x11MSG_HEARTBEAT_REQ\x10\xe8\a\x12\x16\n" +
+	"\x11MSG_HEARTBEAT_RSP\x10\xe9\a\x12\x12\n" +
+	"\rMSG_LOGIN_REQ\x10\xea\a\x12\x12\n" +
+	"\rMSG_LOGIN_RSP\x10\xeb\a\x12\x13\n" +
+	"\x0eMSG_LOGOUT_REQ\x10\xec\a\x12\x13\n" +
+	"\x0eMSG_LOGOUT_RSP\x10\xed\a\x12\x18\n" +
+	"\x13MSG_CREATE_ROOM_REQ\x10\xd0\x0f\x12\x18\n" +
+	"\x13MSG_CREATE_ROOM_RSP\x10\xd1\x0f\x12\x16\n" +
+	"\x11MSG_JOIN_ROOM_REQ\x10\xd2\x0f\x12\x16\n" +
+	"\x11MSG_JOIN_ROOM_RSP\x10\xd3\x0f\x12\x17\n" +
+	"\x12MSG_LEAVE_ROOM_REQ\x10\xd4\x0f\x12\x17\n" +
+	"\x12MSG_LEAVE_ROOM_RSP\x10\xd5\x0f\x12\x16\n" +
+	"\x11MSG_ROOM_INFO_REQ\x10\xd6\x0f\x12\x16\n" +
+	"\x11MSG_ROOM_INFO_RSP\x10\xd7\x0f\x12\x17\n" +
+	"\x12MSG_START_GAME_REQ\x10\xd8\x0f\x12\x17\n" +
+	"\x12MSG_START_GAME_RSP\x10\xd9\x0f\x12\x18\n" +
+	"\x13MSG_PLACE_TOWER_REQ\x10\xb8\x17\x12\x18\n" +
+	"\x13MSG_PLACE_TOWER_RSP\x10\xb9\x17\x12\x1a\n" +
+	"\x15MSG_UPGRADE_TOWER_REQ\x10\xba\x17\x12\x1a\n" +
+	"\x15MSG_UPGRADE_TOWER_RSP\x10\xbb\x17\x12\x17\n" +
+	"\x12MSG_SELL_TOWER_REQ\x10\xbc\x17\x12\x17\n" +
+	"\x12MSG_SELL_TOWER_RSP\x10\xbd\x17\x12\x17\n" +
+	"\x12MSG_WAVE_START_REQ\x10\xbe\x17\x12\x17\n" +
+	"\x12MSG_WAVE_START_RSP\x10\xbf\x17\x12\x1a\n" +
+	"\x15MSG_WAVE_COMPLETE_NTF\x10\xc0\x17\x12\x16\n" +
+	"\x11MSG_GAME_OVER_NTF\x10\xc1\x17\x12\x17\n" +
+	"\x12MSG_SYNC_STATE_NTF\x10\xa0\x1f\x12\x17\n" +
+	"\x12MSG_SYNC_ENEMY_NTF\x10\xa1\x1f\x12\x17\n" +
+	"\x12MSG_SYNC_TOWER_NTF\x10\xa2\x1f\x12\x18\n" +
+	"\x13MSG_SYNC_DAMAGE_NTF\x10\xa3\x1f\x12\x0e\n" +
 	"\tMSG_ERROR\x10\x8fN*\x96\x04\n" +
 	"\tErrorCode\x12\x0e\n" +
 	"\n" +
@@ -514,7 +561,7 @@ func file_common_proto_rawDescGZIP() []byte {
 var file_common_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_common_proto_goTypes = []any{
-	(MessageType)(0),      // 0: MessageType
+	(Cmd)(0),              // 0: Cmd
 	(ErrorCode)(0),        // 1: ErrorCode
 	(*Vector3)(nil),       // 2: Vector3
 	(*NetworkPacket)(nil), // 3: NetworkPacket
