@@ -3,6 +3,7 @@ package network
 import (
 	"sync"
 	"time"
+	"towerdefense/account"
 	pb "towerdefense/proto"
 	"towerdefense/utils"
 	
@@ -16,6 +17,7 @@ type Session struct {
 	ID            string
 	PlayerID      string
 	PlayerName    string
+	Token         string    // 保存登录时使用的 token，断开时清理
 	Conn          *websocket.Conn
 	Send          chan []byte
 	LastHeartbeat time.Time
@@ -201,15 +203,22 @@ func (s *Session) Close() {
 	if s.IsAlive {
 		s.IsAlive = false
 		s.Conn.Close()
+		
+		// 通知账号服清理 token（防止内存泄漏）
+		if s.Token != "" {
+			account.GetAccountServer().InvalidateToken(s.Token)
+			utils.Info("会话关闭，清理token: 玩家=%s", s.PlayerName)
+		}
 	}
 }
 
 // SetPlayerInfo 设置玩家信息
-func (s *Session) SetPlayerInfo(playerID, playerName string) {
+func (s *Session) SetPlayerInfo(playerID, playerName, token string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.PlayerID = playerID
 	s.PlayerName = playerName
+	s.Token = token
 }
 
 // GetPlayerInfo 获取玩家信息

@@ -2,6 +2,7 @@ package network
 
 import (
 	"time"
+	"towerdefense/account"
 	pb "towerdefense/proto"
 	"towerdefense/utils"
 
@@ -107,9 +108,10 @@ func (s *Session) handleProtoLogin(payload []byte) {
 		return
 	}
 	
-	// 验证玩家信息
-	if req.PlayerId == "" || req.PlayerName == "" {
-		s.SendProtoError(pb.ErrorCode_ERROR_INVALID_PARAM, "玩家信息不完整")
+	// 向账号服验证 token 获取玩家信息
+	session, err := account.GetAccountServer().VerifyToken(req.Token)
+	if err != nil {
+		s.SendProtoError(pb.ErrorCode_ERROR_TOKEN_INVALID, "token无效: "+err.Error())
 		return
 	}
 	
@@ -119,23 +121,23 @@ func (s *Session) handleProtoLogin(payload []byte) {
 		return
 	}
 	
-	// 设置玩家信息
-	s.SetPlayerInfo(req.PlayerId, req.PlayerName)
+	// 设置玩家信息（从 token 验证结果获取，同时保存 token 用于断开时清理）
+	s.SetPlayerInfo(session.PlayerID, session.Username, req.Token)
 	
 	resp := &pb.LoginResponse{
 		Success:    true,
-		PlayerId:   req.PlayerId,
-		PlayerName: req.PlayerName,
+		PlayerId:   session.PlayerID,
+		PlayerName: session.Username,
 		PlayerInfo: &pb.PlayerBaseInfo{
-			PlayerId:   req.PlayerId,
-			PlayerName: req.PlayerName,
+			PlayerId:   session.PlayerID,
+			PlayerName: session.Username,
 			Level:      1,
 			Coin:       1000,
 		},
 	}
 	
 	s.SendProtoMessage(pb.Cmd_MSG_LOGIN_RSP, resp)
-	utils.Info("玩家 %s (%s) 登录成功", req.PlayerName, req.PlayerId)
+	utils.Info("玩家 %s (%s) 登录游戏服成功", session.Username, session.PlayerID)
 }
 
 func (s *Session) handleProtoLogout(payload []byte) {

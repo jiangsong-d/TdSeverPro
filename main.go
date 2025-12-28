@@ -136,7 +136,7 @@ func startGameServer() {
 	logic.InitBattleManager()
 	
 	// 注册WebSocket路由
-	http.HandleFunc("/ws", network.HandleWebSocket)
+	http.HandleFunc("/game/login", network.HandleWebSocket)
 	
 	// 服务器信息接口
 	http.HandleFunc("/info", func(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +155,7 @@ func startGameServer() {
 	utils.Info("游戏服务器 [%s] 启动", *serverName)
 	utils.Info("服务器ID: %d", *serverID)
 	utils.Info("监听地址: %s", *addr)
-	utils.Info("WebSocket: ws://192.168.2.100%s/ws", *addr)
+	utils.Info("WebSocket: ws://192.168.2.100%s", *addr)
 	
 	err := http.ListenAndServe(*addr, nil)
 	if err != nil {

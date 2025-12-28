@@ -45,8 +45,7 @@ type Session struct {
 type GameServerInfo struct {
 	ServerID   int    `json:"server_id"`
 	ServerName string `json:"server_name"`
-	Host       string `json:"host"`
-	Port       int    `json:"port"`
+	Url        string `json:"url"`         // 完整的WebSocket连接地址
 	Status     string `json:"status"`      // online, maintain, full
 	OnlineNum  int    `json:"online_num"`
 	MaxPlayer  int    `json:"max_player"`
@@ -67,9 +66,43 @@ func GetAccountServer() *AccountServer {
 		}
 		accountServer.InitGameServers()
 		accountServer.LoadAccountsFromStorage()
+		
+		// 启动定时清理过期 token 的协程
+		go accountServer.tokenCleanupRoutine()
+		
 		utils.Info("账号服务器初始化完成")
 	})
 	return accountServer
+}
+
+// tokenCleanupRoutine 定时清理过期 token（防止内存泄漏）
+func (as *AccountServer) tokenCleanupRoutine() {
+	ticker := time.NewTicker(10 * time.Minute) // 每10分钟清理一次
+	defer ticker.Stop()
+	
+	for range ticker.C {
+		as.cleanupExpiredTokens()
+	}
+}
+
+// cleanupExpiredTokens 清理过期的 token
+func (as *AccountServer) cleanupExpiredTokens() {
+	as.mu.Lock()
+	defer as.mu.Unlock()
+	
+	now := time.Now()
+	expiredCount := 0
+	
+	for token, session := range as.tokens {
+		if now.After(session.ExpireTime) {
+			delete(as.tokens, token)
+			expiredCount++
+		}
+	}
+	
+	if expiredCount > 0 {
+		utils.Info("清理过期token: %d 个，剩余: %d 个", expiredCount, len(as.tokens))
+	}
 }
 
 // LoadAccountsFromStorage 从存储加载账号数据到内存缓存
@@ -85,8 +118,7 @@ func (as *AccountServer) InitGameServers() {
 		{
 			ServerID:   1,
 			ServerName: "一区-烈焰",
-			Host:       "192.168.2.100",
-			Port:       8081,
+			Url:        "ws://192.168.2.100:8081/game/login",
 			Status:     "online",
 			OnlineNum:  125,
 			MaxPlayer:  1000,
@@ -155,48 +187,19 @@ func (as *AccountServer) Login(username, password string) (*Session, error) {
 		// 从存储加载
 		accountData, err := as.accountRepo.GetByUsername(username)
 		if err != nil {
-			// 账号不存在，自动注册（开发环境）
-			account = &Account{
-				Username:      username,
-				Password:      hashPassword(password),
-				PlayerID:      uuid.New().String(),
-				PlayerName:    username,
-				CreateTime:    time.Now(),
-				LastLoginTime: time.Now(),
-			}
-			
-			// 保存到存储
-			newAccountData := &repository.AccountData{
-				Username:      account.Username,
-				Password:      account.Password,
-				PlayerID:      account.PlayerID,
-				PlayerName:    account.PlayerName,
-				Email:         "",
-				CreateTime:    account.CreateTime,
-				LastLoginTime: account.LastLoginTime,
-				LoginCount:    1,
-				Status:        "active",
-			}
-			
-			if err := as.accountRepo.Save(newAccountData); err != nil {
-				utils.Error("保存账号失败: %v", err)
-				return nil, fmt.Errorf("登录失败: %v", err)
-			}
-			
-			as.accounts[username] = account
-			utils.Info("自动注册新账号: %s", username)
-		} else {
-			// 从存储数据转换
-			account = &Account{
-				Username:      accountData.Username,
-				Password:      accountData.Password,
-				PlayerID:      accountData.PlayerID,
-				PlayerName:    accountData.PlayerName,
-				CreateTime:    accountData.CreateTime,
-				LastLoginTime: accountData.LastLoginTime,
-			}
-			as.accounts[username] = account
+			// 账号不存在
+			return nil, fmt.Errorf("账号不存在")
 		}
+		// 从存储数据转换
+		account = &Account{
+			Username:      accountData.Username,
+			Password:      accountData.Password,
+			PlayerID:      accountData.PlayerID,
+			PlayerName:    accountData.PlayerName,
+			CreateTime:    accountData.CreateTime,
+			LastLoginTime: accountData.LastLoginTime,
+		}
+		as.accounts[username] = account
 	}
 	
 	// 验证密码
@@ -212,7 +215,10 @@ func (as *AccountServer) Login(username, password string) (*Session, error) {
 		utils.Warn("更新登录时间失败: %v", err)
 	}
 	
-	// 生成token
+	// 使该玩家之前的token失效（防止多设备同时在线）
+	as.invalidateUserTokens(account.PlayerID)
+	
+	// 生成新token
 	token := uuid.New().String()
 	session := &Session{
 		Token:      token,
@@ -225,6 +231,16 @@ func (as *AccountServer) Login(username, password string) (*Session, error) {
 	utils.Info("玩家登录成功: %s, PlayerID: %s, Token: %s", username, account.PlayerID, token)
 	
 	return session, nil
+}
+
+// invalidateUserTokens 使指定玩家的所有旧token失效（内部方法，调用时已持有锁）
+func (as *AccountServer) invalidateUserTokens(playerID string) {
+	for token, session := range as.tokens {
+		if session.PlayerID == playerID {
+			delete(as.tokens, token)
+			utils.Info("使旧token失效: %s", token)
+		}
+	}
 }
 
 // VerifyToken 验证token
@@ -242,6 +258,24 @@ func (as *AccountServer) VerifyToken(token string) (*Session, error) {
 	}
 	
 	return session, nil
+}
+
+// InvalidateToken 主动使 token 失效（客户端断开连接时调用）
+func (as *AccountServer) InvalidateToken(token string) {
+	as.mu.Lock()
+	defer as.mu.Unlock()
+	
+	if session, exists := as.tokens[token]; exists {
+		delete(as.tokens, token)
+		utils.Info("主动使token失效: %s (玩家: %s)", token, session.Username)
+	}
+}
+
+// GetTokenCount 获取当前 token 数量（用于监控）
+func (as *AccountServer) GetTokenCount() int {
+	as.mu.RLock()
+	defer as.mu.RUnlock()
+	return len(as.tokens)
 }
 
 // GetGameServerList 获取区服列表
@@ -303,16 +337,27 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	account, err := GetAccountServer().RegisterAccount(req.Username, req.Password)
+	_, err := GetAccountServer().RegisterAccount(req.Username, req.Password)
 	if err != nil {
 		sendError(w, err.Error())
 		return
 	}
 	
+	// 注册成功后自动登录，生成token并返回服务器列表
+	session, err := GetAccountServer().Login(req.Username, req.Password)
+	if err != nil {
+		sendError(w, "注册成功但登录失败: "+err.Error())
+		return
+	}
+	
+	servers := GetAccountServer().GetGameServerList()
+	
+	// 返回token和服务器列表
 	sendSuccess(w, map[string]interface{}{
-		"player_id":   account.PlayerID,
-		"player_name": account.PlayerName,
-		"message":     "注册成功",
+		"token":       session.Token,
+		"username":    session.Username,
+		"expire_time": session.ExpireTime.Unix(),
+		"servers":     servers,
 	})
 }
 
@@ -344,55 +389,28 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
+	servers := GetAccountServer().GetGameServerList()
+	
+	// 登录成功直接返回token和服务器列表
 	sendSuccess(w, map[string]interface{}{
 		"token":       session.Token,
-		"player_id":   session.PlayerID,
 		"username":    session.Username,
 		"expire_time": session.ExpireTime.Unix(),
-		"message":     "登录成功",
+		"servers":     servers,
 	})
 }
 
-// HandleGetServerList 获取区服列表接口
+// HandleGetServerList 获取区服列表接口（无需登录）
 func HandleGetServerList(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet && r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	
-	// 验证token
-	token := r.Header.Get("Authorization")
-	if token == "" {
-		token = r.URL.Query().Get("token")
-	} else {
-		// 去掉 "Bearer " 前缀
-		if len(token) > 7 && token[:7] == "Bearer " {
-			token = token[7:]
-		}
-	}
-	
-	if token == "" {
-		utils.Error("获取服务器列表失败: 缺少token")
-		sendError(w, "缺少token")
-		return
-	}
-	
-	utils.Info("验证token: %s", token)
-	
-	session, err := GetAccountServer().VerifyToken(token)
-	if err != nil {
-		utils.Error("token验证失败: %v", err)
-		sendError(w, err.Error())
-		return
-	}
-	
-	utils.Info("token验证成功，玩家: %s", session.Username)
-	
 	servers := GetAccountServer().GetGameServerList()
 	
 	sendSuccess(w, map[string]interface{}{
-		"player_id": session.PlayerID,
-		"servers":   servers,
+		"servers": servers,
 	})
 }
 
