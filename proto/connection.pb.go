@@ -135,14 +135,12 @@ func (x *HeartbeatResponse) GetPing() int32 {
 	return 0
 }
 
-// 登录请求
+// 登录请求（连接游戏服时使用，token 从账号服登录获得）
 type LoginRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	PlayerId      string                 `protobuf:"bytes,1,opt,name=player_id,json=playerId,proto3" json:"player_id,omitempty"`
-	PlayerName    string                 `protobuf:"bytes,2,opt,name=player_name,json=playerName,proto3" json:"player_name,omitempty"`
-	Token         string                 `protobuf:"bytes,3,opt,name=token,proto3" json:"token,omitempty"`
-	DeviceId      string                 `protobuf:"bytes,4,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"` // 设备ID
-	Platform      string                 `protobuf:"bytes,5,opt,name=platform,proto3" json:"platform,omitempty"`                 // 平台: iOS/Android/PC
+	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`                       // 账号服登录返回的 token
+	DeviceId      string                 `protobuf:"bytes,2,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"` // 设备ID
+	Platform      string                 `protobuf:"bytes,3,opt,name=platform,proto3" json:"platform,omitempty"`                 // 平台: iOS/Android/PC
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -175,20 +173,6 @@ func (x *LoginRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
 func (*LoginRequest) Descriptor() ([]byte, []int) {
 	return file_connection_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *LoginRequest) GetPlayerId() string {
-	if x != nil {
-		return x.PlayerId
-	}
-	return ""
-}
-
-func (x *LoginRequest) GetPlayerName() string {
-	if x != nil {
-		return x.PlayerName
-	}
-	return ""
 }
 
 func (x *LoginRequest) GetToken() string {
@@ -501,14 +485,11 @@ const file_connection_proto_rawDesc = "" +
 	"\ttimestamp\x18\x01 \x01(\x03R\ttimestamp\x12\x1f\n" +
 	"\vserver_time\x18\x02 \x01(\x03R\n" +
 	"serverTime\x12\x12\n" +
-	"\x04ping\x18\x03 \x01(\x05R\x04ping\"\x9b\x01\n" +
-	"\fLoginRequest\x12\x1b\n" +
-	"\tplayer_id\x18\x01 \x01(\tR\bplayerId\x12\x1f\n" +
-	"\vplayer_name\x18\x02 \x01(\tR\n" +
-	"playerName\x12\x14\n" +
-	"\x05token\x18\x03 \x01(\tR\x05token\x12\x1b\n" +
-	"\tdevice_id\x18\x04 \x01(\tR\bdeviceId\x12\x1a\n" +
-	"\bplatform\x18\x05 \x01(\tR\bplatform\"\xd2\x01\n" +
+	"\x04ping\x18\x03 \x01(\x05R\x04ping\"]\n" +
+	"\fLoginRequest\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\x12\x1b\n" +
+	"\tdevice_id\x18\x02 \x01(\tR\bdeviceId\x12\x1a\n" +
+	"\bplatform\x18\x03 \x01(\tR\bplatform\"\xd2\x01\n" +
 	"\rLoginResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x1b\n" +
 	"\tplayer_id\x18\x02 \x01(\tR\bplayerId\x12\x1f\n" +

@@ -9,6 +9,8 @@ import (
 type PlayerData struct {
 	PlayerID      string    `json:"player_id"`
 	PlayerName    string    `json:"player_name"`
+	IconID        int       `json:"icon_id"`         // 头像ID
+	FrameID       int       `json:"frame_id"`        // 头像框ID
 	Level         int       `json:"level"`
 	Exp           int       `json:"exp"`
 	Gold          int       `json:"gold"`
@@ -21,6 +23,7 @@ type PlayerData struct {
 	MaxWave       int       `json:"max_wave"`
 	CreateTime    time.Time `json:"create_time"`
 	LastLoginTime time.Time `json:"last_login_time"`
+	IsNewPlayer   bool      `json:"is_new_player"`   // 是否新玩家
 }
 
 const TablePlayer = "players"
@@ -122,4 +125,73 @@ func (pr *PlayerRepository) GetTopPlayers(limit int) ([]*PlayerData, error) {
 	_ = results // 暂时不实现
 	
 	return players, nil
+}
+
+// CreateDefaultPlayer 创建默认玩家数据
+func (pr *PlayerRepository) CreateDefaultPlayer(playerID, playerName string) (*PlayerData, error) {
+	now := time.Now()
+	player := &PlayerData{
+		PlayerID:      playerID,
+		PlayerName:    playerName,
+		IconID:        1,        // 默认头像ID
+		FrameID:       1,        // 默认头像框ID
+		Level:         1,        // 默认等级
+		Exp:           0,
+		Gold:          1000,     // 初始金币
+		Diamond:       100,      // 初始钻石
+		VipLevel:      0,
+		TotalBattles:  0,
+		WinCount:      0,
+		LoseCount:     0,
+		TotalKills:    0,
+		MaxWave:       0,
+		CreateTime:    now,
+		LastLoginTime: now,
+		IsNewPlayer:   true,     // 标记为新玩家
+	}
+	
+	err := pr.Save(player)
+	if err != nil {
+		return nil, err
+	}
+	return player, nil
+}
+
+// GetOrCreatePlayer 获取玩家数据，不存在则创建默认数据
+func (pr *PlayerRepository) GetOrCreatePlayer(playerID, playerName string) (*PlayerData, bool, error) {
+	player, err := pr.Get(playerID)
+	if err == nil {
+		// 玩家存在，更新最后登录时间
+		player.LastLoginTime = time.Now()
+		player.IsNewPlayer = false
+		pr.Save(player)
+		return player, false, nil // false 表示不是新创建的
+	}
+	
+	// 玩家不存在，创建默认数据
+	player, err = pr.CreateDefaultPlayer(playerID, playerName)
+	if err != nil {
+		return nil, false, err
+	}
+	return player, true, nil // true 表示是新创建的
+}
+
+// UpdatePlayerName 更新玩家名称
+func (pr *PlayerRepository) UpdatePlayerName(playerID, newName string) error {
+	player, err := pr.Get(playerID)
+	if err != nil {
+		return err
+	}
+	player.PlayerName = newName
+	return pr.Save(player)
+}
+
+// UpdatePlayerIcon 更新玩家头像
+func (pr *PlayerRepository) UpdatePlayerIcon(playerID string, iconID int) error {
+	player, err := pr.Get(playerID)
+	if err != nil {
+		return err
+	}
+	player.IconID = iconID
+	return pr.Save(player)
 }

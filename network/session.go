@@ -237,6 +237,8 @@ func (s *Session) HandleProtobufMessage(data []byte) {
 		return
 	}
 	
+	utils.Info("收到消息，Cmd: %d", packet.Cmd)
+	
 	// 委托给 proto_handler 处理
 	s.HandleProtoMessage(packet)
 }

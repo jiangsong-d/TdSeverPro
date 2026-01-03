@@ -65,6 +65,7 @@ func startAccountServer() {
 	http.HandleFunc("/api/register", account.HandleRegister)
 	http.HandleFunc("/api/login", account.HandleLogin)
 	http.HandleFunc("/api/servers", account.HandleGetServerList)
+	http.HandleFunc("/api/verify_token", account.HandleVerifyToken)
 	
 	// 健康检查
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {

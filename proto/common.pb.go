@@ -32,6 +32,13 @@ const (
 	Cmd_MSG_LOGIN_RSP     Cmd = 1003
 	Cmd_MSG_LOGOUT_REQ    Cmd = 1004
 	Cmd_MSG_LOGOUT_RSP    Cmd = 1005
+	// 玩家相关 1100-1199
+	Cmd_MSG_GET_PLAYER_DATA_REQ    Cmd = 1100 // 获取玩家数据请求
+	Cmd_MSG_GET_PLAYER_DATA_RSP    Cmd = 1101 // 获取玩家数据响应
+	Cmd_MSG_UPDATE_PLAYER_NAME_REQ Cmd = 1102 // 修改玩家名请求
+	Cmd_MSG_UPDATE_PLAYER_NAME_RSP Cmd = 1103 // 修改玩家名响应
+	Cmd_MSG_UPDATE_PLAYER_ICON_REQ Cmd = 1104 // 修改头像请求
+	Cmd_MSG_UPDATE_PLAYER_ICON_RSP Cmd = 1105 // 修改头像响应
 	// 房间相关 2000-2099
 	Cmd_MSG_CREATE_ROOM_REQ Cmd = 2000
 	Cmd_MSG_CREATE_ROOM_RSP Cmd = 2001
@@ -73,6 +80,12 @@ var (
 		1003: "MSG_LOGIN_RSP",
 		1004: "MSG_LOGOUT_REQ",
 		1005: "MSG_LOGOUT_RSP",
+		1100: "MSG_GET_PLAYER_DATA_REQ",
+		1101: "MSG_GET_PLAYER_DATA_RSP",
+		1102: "MSG_UPDATE_PLAYER_NAME_REQ",
+		1103: "MSG_UPDATE_PLAYER_NAME_RSP",
+		1104: "MSG_UPDATE_PLAYER_ICON_REQ",
+		1105: "MSG_UPDATE_PLAYER_ICON_RSP",
 		2000: "MSG_CREATE_ROOM_REQ",
 		2001: "MSG_CREATE_ROOM_RSP",
 		2002: "MSG_JOIN_ROOM_REQ",
@@ -100,38 +113,44 @@ var (
 		9999: "MSG_ERROR",
 	}
 	Cmd_value = map[string]int32{
-		"MSG_NONE":              0,
-		"MSG_HEARTBEAT_REQ":     1000,
-		"MSG_HEARTBEAT_RSP":     1001,
-		"MSG_LOGIN_REQ":         1002,
-		"MSG_LOGIN_RSP":         1003,
-		"MSG_LOGOUT_REQ":        1004,
-		"MSG_LOGOUT_RSP":        1005,
-		"MSG_CREATE_ROOM_REQ":   2000,
-		"MSG_CREATE_ROOM_RSP":   2001,
-		"MSG_JOIN_ROOM_REQ":     2002,
-		"MSG_JOIN_ROOM_RSP":     2003,
-		"MSG_LEAVE_ROOM_REQ":    2004,
-		"MSG_LEAVE_ROOM_RSP":    2005,
-		"MSG_ROOM_INFO_REQ":     2006,
-		"MSG_ROOM_INFO_RSP":     2007,
-		"MSG_START_GAME_REQ":    2008,
-		"MSG_START_GAME_RSP":    2009,
-		"MSG_PLACE_TOWER_REQ":   3000,
-		"MSG_PLACE_TOWER_RSP":   3001,
-		"MSG_UPGRADE_TOWER_REQ": 3002,
-		"MSG_UPGRADE_TOWER_RSP": 3003,
-		"MSG_SELL_TOWER_REQ":    3004,
-		"MSG_SELL_TOWER_RSP":    3005,
-		"MSG_WAVE_START_REQ":    3006,
-		"MSG_WAVE_START_RSP":    3007,
-		"MSG_WAVE_COMPLETE_NTF": 3008,
-		"MSG_GAME_OVER_NTF":     3009,
-		"MSG_SYNC_STATE_NTF":    4000,
-		"MSG_SYNC_ENEMY_NTF":    4001,
-		"MSG_SYNC_TOWER_NTF":    4002,
-		"MSG_SYNC_DAMAGE_NTF":   4003,
-		"MSG_ERROR":             9999,
+		"MSG_NONE":                   0,
+		"MSG_HEARTBEAT_REQ":          1000,
+		"MSG_HEARTBEAT_RSP":          1001,
+		"MSG_LOGIN_REQ":              1002,
+		"MSG_LOGIN_RSP":              1003,
+		"MSG_LOGOUT_REQ":             1004,
+		"MSG_LOGOUT_RSP":             1005,
+		"MSG_GET_PLAYER_DATA_REQ":    1100,
+		"MSG_GET_PLAYER_DATA_RSP":    1101,
+		"MSG_UPDATE_PLAYER_NAME_REQ": 1102,
+		"MSG_UPDATE_PLAYER_NAME_RSP": 1103,
+		"MSG_UPDATE_PLAYER_ICON_REQ": 1104,
+		"MSG_UPDATE_PLAYER_ICON_RSP": 1105,
+		"MSG_CREATE_ROOM_REQ":        2000,
+		"MSG_CREATE_ROOM_RSP":        2001,
+		"MSG_JOIN_ROOM_REQ":          2002,
+		"MSG_JOIN_ROOM_RSP":          2003,
+		"MSG_LEAVE_ROOM_REQ":         2004,
+		"MSG_LEAVE_ROOM_RSP":         2005,
+		"MSG_ROOM_INFO_REQ":          2006,
+		"MSG_ROOM_INFO_RSP":          2007,
+		"MSG_START_GAME_REQ":         2008,
+		"MSG_START_GAME_RSP":         2009,
+		"MSG_PLACE_TOWER_REQ":        3000,
+		"MSG_PLACE_TOWER_RSP":        3001,
+		"MSG_UPGRADE_TOWER_REQ":      3002,
+		"MSG_UPGRADE_TOWER_RSP":      3003,
+		"MSG_SELL_TOWER_REQ":         3004,
+		"MSG_SELL_TOWER_RSP":         3005,
+		"MSG_WAVE_START_REQ":         3006,
+		"MSG_WAVE_START_RSP":         3007,
+		"MSG_WAVE_COMPLETE_NTF":      3008,
+		"MSG_GAME_OVER_NTF":          3009,
+		"MSG_SYNC_STATE_NTF":         4000,
+		"MSG_SYNC_ENEMY_NTF":         4001,
+		"MSG_SYNC_TOWER_NTF":         4002,
+		"MSG_SYNC_DAMAGE_NTF":        4003,
+		"MSG_ERROR":                  9999,
 	}
 )
 
@@ -488,7 +507,7 @@ const file_common_proto_rawDesc = "" +
 	"\rErrorResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12\x16\n" +
-	"\x06detail\x18\x03 \x01(\tR\x06detail*\x86\x06\n" +
+	"\x06detail\x18\x03 \x01(\tR\x06detail*\xc6\a\n" +
 	"\x03Cmd\x12\f\n" +
 	"\bMSG_NONE\x10\x00\x12\x16\n" +
 	"\x11MSG_HEARTBEAT_REQ\x10\xe8\a\x12\x16\n" +
@@ -496,7 +515,13 @@ const file_common_proto_rawDesc = "" +
 	"\rMSG_LOGIN_REQ\x10\xea\a\x12\x12\n" +
 	"\rMSG_LOGIN_RSP\x10\xeb\a\x12\x13\n" +
 	"\x0eMSG_LOGOUT_REQ\x10\xec\a\x12\x13\n" +
-	"\x0eMSG_LOGOUT_RSP\x10\xed\a\x12\x18\n" +
+	"\x0eMSG_LOGOUT_RSP\x10\xed\a\x12\x1c\n" +
+	"\x17MSG_GET_PLAYER_DATA_REQ\x10\xcc\b\x12\x1c\n" +
+	"\x17MSG_GET_PLAYER_DATA_RSP\x10\xcd\b\x12\x1f\n" +
+	"\x1aMSG_UPDATE_PLAYER_NAME_REQ\x10\xce\b\x12\x1f\n" +
+	"\x1aMSG_UPDATE_PLAYER_NAME_RSP\x10\xcf\b\x12\x1f\n" +
+	"\x1aMSG_UPDATE_PLAYER_ICON_REQ\x10\xd0\b\x12\x1f\n" +
+	"\x1aMSG_UPDATE_PLAYER_ICON_RSP\x10\xd1\b\x12\x18\n" +
 	"\x13MSG_CREATE_ROOM_REQ\x10\xd0\x0f\x12\x18\n" +
 	"\x13MSG_CREATE_ROOM_RSP\x10\xd1\x0f\x12\x16\n" +
 	"\x11MSG_JOIN_ROOM_REQ\x10\xd2\x0f\x12\x16\n" +

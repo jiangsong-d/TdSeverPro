@@ -414,6 +414,40 @@ func HandleGetServerList(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// HandleVerifyToken 验证 token 接口（游戏服调用）
+func HandleVerifyToken(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	
+	var req struct {
+		Token string `json:"token"`
+	}
+	
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		sendError(w, "请求数据格式错误")
+		return
+	}
+	
+	if req.Token == "" {
+		sendError(w, "token不能为空")
+		return
+	}
+	
+	session, err := GetAccountServer().VerifyToken(req.Token)
+	if err != nil {
+		sendError(w, err.Error())
+		return
+	}
+	
+	sendSuccess(w, map[string]interface{}{
+		"player_id":   session.PlayerID,
+		"username":    session.Username,
+		"expire_time": session.ExpireTime.Unix(),
+	})
+}
+
 // sendSuccess 发送成功响应
 func sendSuccess(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
